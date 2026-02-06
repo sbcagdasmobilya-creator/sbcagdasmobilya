@@ -3,90 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SB Çağdaş Mobilya | Yönetim Paneli</title>
+    <title>SB Çağdaş Mobilya | Sanatın Mobilya Hali</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .hero-section { background-size: cover; background-position: center; transition: all 0.5s ease-in-out; }
-        #loader { position: fixed; inset: 0; background: white; z-index: 10000; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s; }
-        .admin-card { border: 1px solid rgba(239, 68, 68, 0.2); background: #fffafb; }
-        .category-media { width: 100%; height: 250px; object-fit: cover; }
-        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #78350f; /* Amber 900 */
+            --accent: #d97706;  /* Amber 600 */
+            --dark: #1c1917;    /* Stone 900 */
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            scroll-behavior: smooth; 
+            background-color: #fafaf9;
+        }
+
+        .hero-overlay {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
+        }
+
+        #loader { 
+            position: fixed; inset: 0; background: #fff; z-index: 10000; 
+            display: flex; align-items: center; justify-content: center; 
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+
+        .nav-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .card-zoom:hover img, .card-zoom:hover video {
+            transform: scale(1.1);
+        }
+
+        .premium-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--accent);
+            margin: 15px auto 0;
+            border-radius: 10px;
+        }
+
+        input:focus, select:focus {
+            ring: 2px;
+            ring-color: var(--accent);
+        }
     </style>
 </head>
-<body class="bg-stone-50 text-stone-900">
+<body class="text-stone-900">
 
 <!-- YÜKLEME EKRANI -->
 <div id="loader">
     <div class="text-center">
-        <div class="w-16 h-16 border-4 border-amber-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="font-bold text-amber-900 animate-pulse tracking-widest text-xs uppercase italic">Sistem Hazırlanıyor...</p>
+        <div class="w-12 h-12 border-[3px] border-amber-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+        <p class="text-[10px] font-bold text-stone-400 tracking-[0.3em] uppercase">SB ÇAĞDAŞ MOBİLYA</p>
     </div>
 </div>
 
-<!-- ÜST BİLGİ ŞERİDİ -->
-<div class="bg-amber-950 text-stone-200 py-2.5 px-6 flex justify-between items-center text-[10px] sm:text-xs font-bold uppercase tracking-widest">
-    <div id="topPhoneDisplay"><i class="fas fa-phone mr-2 text-amber-500"></i> Yükleniyor...</div>
-    <div class="flex gap-4">
-        <a id="ig_link" target="_blank" class="hover:text-amber-400 transition text-lg"><i class="fab fa-instagram"></i></a>
-        <a id="fb_link" target="_blank" class="hover:text-amber-400 transition text-lg"><i class="fab fa-facebook"></i></a>
+<!-- ÜST BİLGİ -->
+<div class="hidden sm:flex bg-stone-900 text-stone-400 py-2 px-8 justify-between items-center text-[10px] font-bold tracking-widest uppercase border-b border-white/5">
+    <div id="topPhone"><i class="fas fa-phone-alt text-amber-600 mr-2"></i> Yükleniyor...</div>
+    <div class="flex gap-6">
+        <a id="ig_link" target="_blank" class="hover:text-white transition cursor-pointer">INSTAGRAM</a>
+        <a id="fb_link" target="_blank" class="hover:text-white transition cursor-pointer">FACEBOOK</a>
     </div>
 </div>
 
 <!-- NAVBAR -->
-<nav class="glass-nav sticky top-0 z-50 border-b px-6 py-4 flex justify-between items-center shadow-sm">
+<nav class="nav-glass sticky top-0 z-[100] px-6 py-4 flex justify-between items-center border-b border-stone-100 shadow-sm">
     <div class="flex flex-col">
-        <span class="text-2xl font-black text-amber-950 leading-none italic uppercase tracking-tighter">SB ÇAĞDAŞ</span>
-        <span class="text-[9px] font-bold text-amber-700 tracking-[0.3em] uppercase mt-1">Mobilya & Dekorasyon</span>
+        <span class="text-2xl font-extrabold text-stone-950 leading-none tracking-tighter italic uppercase">SB ÇAĞDAŞ</span>
+        <span class="text-[8px] font-bold text-amber-700 tracking-[0.4em] uppercase mt-1">Mobilya & Tasarım</span>
     </div>
-    <div class="flex gap-6 items-center">
-        <a href="#services" class="hidden md:block text-[10px] font-extrabold uppercase hover:text-amber-800 transition">Hizmetler</a>
-        <a href="#admin-gate" class="text-red-600 hover:text-red-800 transition text-sm"><i class="fas fa-cog animate-spin-slow"></i></a>
+    <div class="flex items-center gap-8">
+        <a href="#services" class="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-600 hover:text-amber-700 transition">Koleksiyon</a>
+        <a href="#contact" class="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-600 hover:text-amber-700 transition">İletişim</a>
+        <a href="#admin-gate" class="text-stone-300 hover:text-red-500 transition text-sm"><i class="fas fa-cog"></i></a>
     </div>
 </nav>
 
-<!-- HERO - KARŞILAMA -->
-<header id="heroSection" class="hero-section h-[75vh] flex items-center justify-center text-white text-center px-4 relative">
-    <div class="absolute inset-0 bg-black/60"></div>
-    <div class="relative z-10 max-w-4xl">
-        <h1 id="heroTitle" class="text-5xl md:text-8xl font-black mb-6 uppercase italic tracking-tighter drop-shadow-2xl">Yükleniyor...</h1>
-        <p id="heroSubtitle" class="text-lg md:text-2xl font-light opacity-90 italic mb-10 max-w-2xl mx-auto"></p>
-        <div class="flex flex-wrap justify-center gap-4">
-            <a href="#services" class="bg-white text-amber-950 px-10 py-4 rounded-full font-black uppercase text-xs tracking-widest hover:bg-amber-500 hover:text-white transition shadow-2xl">Koleksiyonu Gör</a>
-            <button onclick="sendWp()" class="bg-green-600 text-white px-10 py-4 rounded-full font-black uppercase text-xs tracking-widest hover:bg-green-700 transition shadow-2xl">Whatsapp Teklif</button>
+<!-- HERO -->
+<header id="heroSection" class="relative h-[85vh] flex items-center justify-center overflow-hidden bg-stone-900">
+    <div id="heroBg" class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] scale-105"></div>
+    <div class="absolute inset-0 hero-overlay"></div>
+    
+    <div class="relative z-10 text-center text-white px-6">
+        <span class="block text-amber-500 font-bold tracking-[0.5em] text-[10px] uppercase mb-4 animate-pulse">Beylikdüzü'nün Zanaat Merkezi</span>
+        <h1 id="heroTitle" class="text-5xl md:text-8xl font-black mb-8 italic uppercase tracking-tighter leading-none">...</h1>
+        <p id="heroSubtitle" class="text-sm md:text-xl font-light opacity-80 max-w-2xl mx-auto mb-12 italic leading-relaxed">...</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="#services" class="bg-white text-stone-900 px-12 py-5 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-amber-600 hover:text-white transition-all transform hover:-translate-y-1">Modelleri İncele</a>
+            <button onclick="sendWp()" class="bg-emerald-600 text-white px-12 py-5 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition-all transform hover:-translate-y-1 shadow-xl">Hızlı Teklif Al</button>
         </div>
     </div>
 </header>
 
-<!-- KATEGORİLER VE MEDYA -->
-<section id="services" class="py-24 px-6 container mx-auto">
+<!-- HİZMETLER -->
+<section id="services" class="py-24 px-6 max-w-7xl mx-auto">
     <div class="text-center mb-20">
-        <span class="text-amber-800 font-bold uppercase tracking-[0.4em] text-[10px] mb-3 block">Neler Yapıyoruz?</span>
-        <h2 class="text-4xl font-black italic uppercase text-stone-800 tracking-tighter">Hizmet Alanlarımız</h2>
-        <div class="w-20 h-1 bg-amber-800 mx-auto mt-4 rounded-full"></div>
+        <h2 class="text-3xl md:text-5xl font-black italic uppercase text-stone-900 tracking-tighter section-title">Neler Yapıyoruz?</h2>
+        <p class="mt-6 text-stone-500 text-sm italic">Her mekana özel, el işçiliği ile hayat bulan tasarımlar.</p>
     </div>
-    <div id="categoryGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-        <!-- Kategoriler buraya dinamik gelecek -->
+    
+    <div id="categoryGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <!-- JS ile dolacak -->
     </div>
 </section>
 
-<!-- İLETİŞİM -->
-<section id="contact" class="py-24 bg-stone-900 text-white px-6">
-    <div class="container mx-auto grid lg:grid-cols-2 gap-20">
+<!-- İLETİŞİM ŞERİDİ -->
+<section id="contact" class="bg-stone-950 text-white py-24 px-6 overflow-hidden relative">
+    <div class="absolute top-0 right-0 w-1/3 h-full bg-amber-600/5 -skew-x-12 translate-x-1/2"></div>
+    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 relative z-10">
         <div>
-            <h2 class="text-4xl font-black italic uppercase mb-12 text-amber-500 tracking-tighter">İletişim</h2>
-            <div id="footerContactInfo" class="space-y-10">
-                <!-- Veriler yüklenecek -->
+            <h3 class="text-4xl font-black italic uppercase mb-8 text-amber-500 tracking-tighter">Bize Ulaşın</h3>
+            <p class="text-stone-400 mb-12 italic text-sm leading-relaxed">Özel ölçü mobilya ve dekorasyon projeleriniz için Beylikdüzü'ndeki atölyemize bekliyoruz veya bir telefonla keşfe geliyoruz.</p>
+            
+            <div id="footerContact" class="space-y-8">
+                <!-- JS -->
             </div>
         </div>
-        <div class="bg-white/5 p-10 rounded-[2.5rem] border border-white/10 backdrop-blur-md">
-            <h4 class="text-xl font-bold mb-8 uppercase text-amber-500 italic tracking-widest">Hızlı Mesaj</h4>
-            <div class="space-y-5">
-                <input id="userName" placeholder="Adınız Soyadınız" class="w-full p-5 rounded-2xl bg-stone-800 border-none text-white focus:ring-2 ring-amber-500 outline-none transition">
-                <button onclick="sendWp()" class="w-full bg-green-600 hover:bg-green-700 p-5 rounded-2xl font-black uppercase text-xs tracking-[0.2em] transition-all flex items-center justify-center gap-4 shadow-2xl">
-                    <i class="fab fa-whatsapp text-2xl"></i> WHATSAPP İLE GÖNDER
+        
+        <div class="bg-white/5 p-8 md:p-12 rounded-[3rem] border border-white/10 backdrop-blur-xl">
+            <h4 class="text-xl font-bold mb-6 text-white uppercase italic tracking-widest">Hızlı Mesaj</h4>
+            <div class="space-y-4">
+                <input id="userName" type="text" placeholder="Adınız Soyadınız" class="w-full bg-stone-900 border-none p-5 rounded-2xl text-white outline-none focus:ring-2 ring-amber-600 transition">
+                <button onclick="sendWp()" class="w-full bg-emerald-600 hover:bg-emerald-700 p-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-3">
+                    <i class="fab fa-whatsapp text-xl"></i> WHATSAPP İLE GÖNDER
                 </button>
             </div>
         </div>
@@ -94,69 +147,73 @@
 </section>
 
 <!-- YÖNETİM PANELİ -->
-<section id="admin-gate" class="py-20 bg-stone-200 px-6 border-t-8 border-red-500">
+<section id="admin-gate" class="py-20 bg-stone-100 px-6 border-t-4 border-red-600/20">
     <div id="adminLogin" class="text-center max-w-sm mx-auto">
-        <i class="fas fa-lock text-4xl text-stone-400 mb-6"></i>
-        <h3 class="font-black uppercase italic mb-6 tracking-widest">Yönetici Girişi</h3>
-        <input id="adminPass" type="password" placeholder="Admin Şifresi" class="w-full p-4 rounded-2xl border-none shadow-inner outline-none focus:ring-2 ring-red-500 mb-4">
-        <button onclick="login()" class="w-full bg-stone-800 text-white p-4 rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-black transition">Sistemi Aç</button>
+        <div class="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <i class="fas fa-fingerprint text-stone-300 text-2xl"></i>
+        </div>
+        <h3 class="font-bold uppercase tracking-[0.2em] text-xs mb-6 text-stone-500 italic">Yönetici Girişi</h3>
+        <input id="adminPass" type="password" placeholder="Şifre" class="w-full p-4 rounded-2xl border-none shadow-sm outline-none focus:ring-2 ring-amber-600 mb-4 text-center">
+        <button onclick="login()" class="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-black transition">Sistemi Aç</button>
     </div>
 
-    <div id="adminDashboard" class="hidden max-w-6xl mx-auto">
-        <div class="bg-red-700 text-white p-8 rounded-t-[2.5rem] shadow-2xl flex flex-wrap justify-between items-center gap-4">
-            <h2 class="text-2xl font-black italic uppercase tracking-tighter"><i class="fas fa-tools mr-3"></i> CANLI DÜZENLEME PANELİ</h2>
-            <button onclick="saveChanges()" id="saveBtn" class="bg-green-500 hover:bg-green-600 px-10 py-4 rounded-2xl font-black text-xs uppercase shadow-2xl transition active:scale-95">SİTEYİ GÜNCELLE</button>
+    <div id="adminDashboard" class="hidden max-w-6xl mx-auto animate-in fade-in duration-500">
+        <div class="bg-stone-900 text-white p-6 md:p-10 rounded-t-[3rem] flex flex-wrap justify-between items-center gap-6">
+            <div>
+                <h2 class="text-2xl font-black italic uppercase tracking-tighter">KONTROL PANELİ</h2>
+                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-1">Siteniz Buradan Canlı Olarak Güncellenir</p>
+            </div>
+            <button onclick="saveChanges()" id="saveBtn" class="bg-emerald-500 hover:bg-emerald-600 px-12 py-4 rounded-2xl font-black text-xs uppercase shadow-xl transition active:scale-95">DEĞİŞİKLİKLERİ YAYINLA</button>
         </div>
         
-        <div class="bg-white p-8 md:p-12 rounded-b-[2.5rem] shadow-2xl space-y-16">
-            <!-- Hero Ayarları -->
-            <div class="admin-card p-8 rounded-3xl">
-                <h4 class="font-black text-red-600 uppercase mb-6 italic flex items-center gap-2"><i class="fas fa-image"></i> Karşılama Alanı (Hero)</h4>
-                <div class="grid md:grid-cols-2 gap-8">
+        <div class="bg-white p-8 md:p-16 rounded-b-[3rem] shadow-2xl space-y-20">
+            <!-- Hero Settings -->
+            <div class="space-y-8">
+                <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b pb-4"><i class="fas fa-desktop"></i> ANA EKRAN AYARLARI</h4>
+                <div class="grid md:grid-cols-2 gap-6">
                     <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-bold uppercase text-stone-400 ml-2">Ana Başlık</label>
-                        <input id="in_hTitle" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
+                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Ana Başlık</label>
+                        <input id="in_hTitle" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
                     </div>
                     <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-bold uppercase text-stone-400 ml-2">Alt Yazı</label>
-                        <input id="in_hSub" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
+                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Alt Yazı</label>
+                        <input id="in_hSub" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
                     </div>
                     <div class="flex flex-col gap-2 md:col-span-2">
-                        <label class="text-[10px] font-bold uppercase text-stone-400 ml-2">Arkaplan Fotoğraf URL</label>
-                        <input id="in_hBg" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
+                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Arkaplan Görsel Linki (URL)</label>
+                        <input id="in_hBg" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
                     </div>
                 </div>
             </div>
 
-            <!-- Kategori / Foto / Video Ayarları -->
-            <div>
-                <div class="flex justify-between items-center mb-8 px-2">
-                    <h4 class="font-black text-red-600 uppercase italic flex items-center gap-2"><i class="fas fa-th-large"></i> Kategoriler & Medya</h4>
-                    <button onclick="addNewCat()" class="bg-amber-800 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-amber-900">+ YENİ EKLE</button>
+            <!-- Categories -->
+            <div class="space-y-8">
+                <div class="flex justify-between items-center border-b pb-4">
+                    <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3"><i class="fas fa-images"></i> ÜRÜN KATEGORİLERİ</h4>
+                    <button onclick="addNewCat()" class="bg-stone-900 text-white px-6 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-amber-700 transition">+ YENİ KATEGORİ</button>
                 </div>
-                <div id="adminCatContainer" class="space-y-6">
-                    <!-- Dinamik Kategoriler -->
+                <div id="adminCatList" class="grid gap-6">
+                    <!-- Dinamik -->
                 </div>
             </div>
 
-            <!-- İletişim Bilgileri -->
-            <div class="admin-card p-8 rounded-3xl">
-                <h4 class="font-black text-red-600 uppercase mb-6 italic flex items-center gap-2"><i class="fas fa-address-book"></i> İletişim & Sosyal Medya</h4>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <input id="in_phone" placeholder="Telefon No" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
-                    <input id="in_email" placeholder="E-Posta" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
-                    <input id="in_loc" placeholder="Adres" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500 md:col-span-2">
-                    <input id="in_ig" placeholder="Instagram Link" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
-                    <input id="in_fb" placeholder="Facebook Link" class="p-4 bg-stone-50 rounded-xl border-none outline-none focus:ring-2 ring-red-500">
+            <!-- Contact Settings -->
+            <div class="space-y-8">
+                <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b pb-4"><i class="fas fa-phone"></i> İLETİŞİM BİLGİLERİ</h4>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <input id="in_phone" placeholder="Telefon No" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
+                    <input id="in_ig" placeholder="Instagram Link" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
+                    <input id="in_fb" placeholder="Facebook Link" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
+                    <input id="in_loc" placeholder="Atölye Adresi" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<footer class="bg-black py-16 text-center">
-    <div class="text-amber-700 font-black italic text-xl mb-4 uppercase tracking-tighter">SB ÇAĞDAŞ MOBİLYA</div>
-    <div class="text-stone-700 text-[10px] font-bold uppercase tracking-[0.5em]">Beylikdüzü / İSTANBUL &copy; 2026</div>
+<footer class="bg-stone-950 py-12 text-center border-t border-white/5">
+    <div class="text-amber-600 font-black italic text-xl mb-4 uppercase tracking-tighter">SB ÇAĞDAŞ MOBİLYA</div>
+    <div class="text-stone-600 text-[9px] font-bold uppercase tracking-[0.6em]">Beylikdüzü / İSTANBUL &copy; 2026 | Tüm Hakları Saklıdır.</div>
 </footer>
 
 <script type="module">
@@ -168,12 +225,28 @@ const firebaseConfig = JSON.parse(__firebase_config);
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'sb-cagdas-pro-v1';
+const appId = typeof __app_id !== 'undefined' ? __app_id : 'sb-cagdas-premium-v1';
 
-// Path: artifacts/{appId}/public/data/siteData/master
 const siteRef = doc(db, 'artifacts', appId, 'public', 'data', 'siteData', 'master');
 
-let localData = {};
+let localData = {
+    hero: { 
+        title: "SİZ HAYAL EDİN, BİZ TASARLAYALIM", 
+        sub: "Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri.", 
+        bg: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000" 
+    },
+    categories: [
+        { title: "LÜKS MUTFAKLAR", media: "https://images.unsplash.com/photo-1556911227-41a4a169b122", type: "img" },
+        { title: "MODERN BANYOLAR", media: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a", type: "img" },
+        { title: "ÖZEL TASARIM OFİSLER", media: "https://images.unsplash.com/photo-1524758631624-e2822e304c36", type: "img" }
+    ],
+    contact: { 
+        phone: "0541 224 52 56", 
+        ig: "https://instagram.com", 
+        fb: "https://facebook.com", 
+        loc: "Yakuplu Mah. Beylikdüzü / İSTANBUL" 
+    }
+};
 
 async function init() {
     try {
@@ -182,169 +255,143 @@ async function init() {
         } else {
             await signInAnonymously(auth);
         }
-        onAuthStateChanged(auth, (user) => { if (user) fetchData(); });
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                onSnapshot(siteRef, (snap) => {
+                    if (snap.exists()) {
+                        localData = snap.data();
+                        render();
+                    } else {
+                        setDoc(siteRef, localData);
+                    }
+                    hideLoader();
+                }, (err) => { console.error(err); hideLoader(); });
+            }
+        });
     } catch (e) { console.error(e); hideLoader(); }
 }
 
-function fetchData() {
-    onSnapshot(siteRef, (snap) => {
-        if (snap.exists()) {
-            localData = snap.data();
-            updateWebsite();
-        } else {
-            const defaults = {
-                hero: { title: "Evinizdeki Sanat", sub: "30 Yıllık Marangozluk Tecrübesi", bg: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000" },
-                categories: [
-                    { id: 1, title: "Mutfak", desc: "Modern Mutfak Tasarımları", media: "https://images.unsplash.com/photo-1556911227-41a4a169b122?q=80&w=1000", type: "img" },
-                    { id: 2, title: "Banyo", desc: "Şık Banyo Mobilyaları", media: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=1000", type: "img" }
-                ],
-                contact: { phone: "0541 224 52 56", email: "sbcagdasmobilya@gmail.com", loc: "Yakuplu Mah. Beylikdüzü / İSTANBUL", ig: "#", fb: "#" }
-            };
-            setDoc(siteRef, defaults);
-        }
-        hideLoader();
-    }, (e) => { console.error(e); hideLoader(); });
-}
-
-function updateWebsite() {
+function render() {
     // Hero
     document.getElementById('heroTitle').innerText = localData.hero.title;
     document.getElementById('heroSubtitle').innerText = localData.hero.sub;
-    document.getElementById('heroSection').style.backgroundImage = `url('${localData.hero.bg}')`;
+    document.getElementById('heroBg').style.backgroundImage = `url('${localData.hero.bg}')`;
 
-    // Contact
-    document.getElementById('topPhoneDisplay').innerHTML = `<i class="fas fa-phone mr-2 text-amber-500"></i> ${localData.contact.phone}`;
+    // Top Bar & Footer Contact
+    document.getElementById('topPhone').innerHTML = `<i class="fas fa-phone-alt text-amber-600 mr-2"></i> ${localData.contact.phone}`;
     document.getElementById('ig_link').href = localData.contact.ig;
     document.getElementById('fb_link').href = localData.contact.fb;
-    document.getElementById('footerContactInfo').innerHTML = `
-        <div class="flex gap-6 items-start">
-            <div class="w-14 h-14 bg-amber-900/50 rounded-2xl flex items-center justify-center shrink-0 border border-amber-500/30"><i class="fas fa-map-marker-alt text-amber-500 text-xl"></i></div>
-            <div><h4 class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-2">Adres</h4><p class="text-xl italic opacity-80">${localData.contact.loc}</p></div>
+    
+    document.getElementById('footerContact').innerHTML = `
+        <div class="flex gap-6">
+            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-map-marker-alt"></i></div>
+            <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">ATÖLYE ADRESİ</p><p class="text-sm italic">${localData.contact.loc}</p></div>
         </div>
-        <div class="flex gap-6 items-start">
-            <div class="w-14 h-14 bg-amber-900/50 rounded-2xl flex items-center justify-center shrink-0 border border-amber-500/30"><i class="fas fa-phone text-amber-500 text-xl"></i></div>
-            <div><h4 class="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-2">Telefon</h4><p class="text-xl italic opacity-80">${localData.contact.phone}</p></div>
+        <div class="flex gap-6">
+            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-phone"></i></div>
+            <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">MÜŞTERİ HATTI</p><p class="text-sm italic">${localData.contact.phone}</p></div>
         </div>
     `;
 
-    // Categories
+    // Grid
     const grid = document.getElementById('categoryGrid');
-    grid.innerHTML = '';
-    localData.categories.forEach(cat => {
-        const mediaTag = cat.type === 'video' 
-            ? `<video src="${cat.media}" autoplay muted loop class="category-media"></video>` 
-            : `<img src="${cat.media}" class="category-media" alt="${cat.title}">`;
-        
-        grid.innerHTML += `
-            <div class="bg-white rounded-[2.5rem] overflow-hidden shadow-sm hover:shadow-2xl transition-all group border border-stone-100">
-                <div class="overflow-hidden">${mediaTag}</div>
-                <div class="p-10">
-                    <h3 class="font-black italic uppercase text-xl text-amber-950 mb-3">${cat.title}</h3>
-                    <p class="text-sm text-stone-500 italic leading-relaxed">${cat.desc}</p>
+    grid.innerHTML = (localData.categories || []).map(c => `
+        <div class="bg-white rounded-[2.5rem] overflow-hidden premium-shadow group border border-stone-100 transition-all hover:-translate-y-2">
+            <div class="h-80 overflow-hidden relative card-zoom">
+                ${c.type === 'video' ? `<video src="${c.media}" autoplay muted loop class="w-full h-full object-cover transition-transform duration-700"></video>` : `<img src="${c.media}" class="w-full h-full object-cover transition-transform duration-700">`}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                    <button onclick="sendWp()" class="text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">Teklif Al <i class="fas fa-arrow-right text-amber-500"></i></button>
                 </div>
             </div>
-        `;
-    });
-
-    if (!document.getElementById('adminDashboard').classList.contains('hidden')) renderAdmin();
-}
-
-function renderAdmin() {
-    document.getElementById('in_hTitle').value = localData.hero.title;
-    document.getElementById('in_hSub').value = localData.hero.sub;
-    document.getElementById('in_hBg').value = localData.hero.bg;
-    document.getElementById('in_phone').value = localData.contact.phone;
-    document.getElementById('in_email').value = localData.contact.email;
-    document.getElementById('in_loc').value = localData.contact.loc;
-    document.getElementById('in_ig').value = localData.contact.ig;
-    document.getElementById('in_fb').value = localData.contact.fb;
-
-    const list = document.getElementById('adminCatContainer');
-    list.innerHTML = '';
-    localData.categories.forEach((cat, idx) => {
-        list.innerHTML += `
-            <div class="p-8 bg-stone-50 rounded-3xl border border-stone-200 grid md:grid-cols-4 gap-6 items-end relative overflow-hidden">
-                <div class="flex flex-col gap-2">
-                    <label class="text-[9px] font-bold uppercase text-stone-400">Başlık</label>
-                    <input value="${cat.title}" onchange="updateCatItem(${idx}, 'title', this.value)" class="p-3 bg-white rounded-xl border">
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label class="text-[9px] font-bold uppercase text-stone-400">Medya URL (Foto/Video)</label>
-                    <input value="${cat.media}" onchange="updateCatItem(${idx}, 'media', this.value)" class="p-3 bg-white rounded-xl border">
-                </div>
-                <div class="flex flex-col gap-2">
-                    <label class="text-[9px] font-bold uppercase text-stone-400">Tür</label>
-                    <select onchange="updateCatItem(${idx}, 'type', this.value)" class="p-3 bg-white rounded-xl border">
-                        <option value="img" ${cat.type === 'img' ? 'selected' : ''}>Resim</option>
-                        <option value="video" ${cat.type === 'video' ? 'selected' : ''}>Video</option>
-                    </select>
-                </div>
-                <button onclick="removeCatItem(${idx})" class="bg-red-50 text-red-600 p-3 rounded-xl font-black text-[10px] uppercase hover:bg-red-100 transition">SİL</button>
+            <div class="p-10 text-center">
+                <h3 class="font-black italic uppercase text-xl text-stone-900 tracking-tight">${c.title}</h3>
+                <div class="w-10 h-1 bg-amber-600 mx-auto mt-4 rounded-full opacity-30 group-hover:w-20 group-hover:opacity-100 transition-all"></div>
             </div>
-        `;
-    });
+        </div>
+    `).join('');
+
+    if (!document.getElementById('adminDashboard').classList.contains('hidden')) fillAdmin();
 }
-
-window.addNewCat = () => {
-    localData.categories.push({ id: Date.now(), title: "Yeni Hizmet", desc: "Buraya açıklama yazın", media: "", type: "img" });
-    renderAdmin();
-};
-
-window.removeCatItem = (idx) => {
-    localData.categories.splice(idx, 1);
-    renderAdmin();
-};
-
-window.updateCatItem = (idx, field, val) => {
-    localData.categories[idx][field] = val;
-};
 
 window.login = () => {
     if (document.getElementById('adminPass').value === "sb2026") {
         document.getElementById('adminDashboard').classList.remove('hidden');
         document.getElementById('adminLogin').classList.add('hidden');
-        renderAdmin();
-    } else { alert("Şifre Yanlış!"); }
+        fillAdmin();
+    } else { alert("Hatalı Giriş!"); }
+};
+
+function fillAdmin() {
+    document.getElementById('in_hTitle').value = localData.hero.title;
+    document.getElementById('in_hSub').value = localData.hero.sub;
+    document.getElementById('in_hBg').value = localData.hero.bg;
+    document.getElementById('in_phone').value = localData.contact.phone;
+    document.getElementById('in_ig').value = localData.contact.ig;
+    document.getElementById('in_fb').value = localData.contact.fb;
+    document.getElementById('in_loc').value = localData.contact.loc;
+
+    const list = document.getElementById('adminCatList');
+    list.innerHTML = (localData.categories || []).map((c, i) => `
+        <div class="p-6 bg-stone-50 rounded-3xl border border-stone-200 grid md:grid-cols-4 gap-4 items-end">
+            <div class="flex flex-col gap-1">
+                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Başlık</label>
+                <input value="${c.title}" onchange="upCat(${i}, 'title', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Medya URL</label>
+                <input value="${c.media}" onchange="upCat(${i}, 'media', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Tür</label>
+                <select onchange="upCat(${i}, 'type', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+                    <option value="img" ${c.type === 'img' ? 'selected' : ''}>Resim</option>
+                    <option value="video" ${c.type === 'video' ? 'selected' : ''}>Video</option>
+                </select>
+            </div>
+            <button onclick="removeCat(${i})" class="bg-red-50 text-red-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-red-100 transition">KATEGORİYİ SİL</button>
+        </div>
+    `).join('');
+}
+
+window.upCat = (i, f, v) => { localData.categories[i][f] = v; };
+window.removeCat = (i) => { localData.categories.splice(i, 1); fillAdmin(); };
+window.addNewCat = () => { 
+    if(!localData.categories) localData.categories = [];
+    localData.categories.push({title: 'Yeni Kategori', media: '', type: 'img'}); 
+    fillAdmin(); 
 };
 
 window.saveChanges = async () => {
     if(!auth.currentUser) return;
     const btn = document.getElementById('saveBtn');
-    btn.innerText = "YÜKLENİYOR...";
+    btn.innerText = "YAYINLANIYOR...";
     btn.disabled = true;
 
-    const dataToSave = {
-        hero: {
-            title: document.getElementById('in_hTitle').value,
-            sub: document.getElementById('in_hSub').value,
-            bg: document.getElementById('in_hBg').value
-        },
-        categories: localData.categories,
-        contact: {
-            phone: document.getElementById('in_phone').value,
-            email: document.getElementById('in_email').value,
-            loc: document.getElementById('in_loc').value,
-            ig: document.getElementById('in_ig').value,
-            fb: document.getElementById('in_fb').value
-        }
-    };
+    localData.hero.title = document.getElementById('in_hTitle').value;
+    localData.hero.sub = document.getElementById('in_hSub').value;
+    localData.hero.bg = document.getElementById('in_hBg').value;
+    localData.contact.phone = document.getElementById('in_phone').value;
+    localData.contact.ig = document.getElementById('in_ig').value;
+    localData.contact.fb = document.getElementById('in_fb').value;
+    localData.contact.loc = document.getElementById('in_loc').value;
 
     try {
-        await setDoc(siteRef, dataToSave);
-        alert("Siteniz başarıyla güncellendi!");
+        await setDoc(siteRef, localData);
+        alert("Siteniz Başarıyla Güncellendi!");
     } catch (e) { alert("Hata: " + e.message); }
-    finally {
-        btn.innerText = "SİTEYİ GÜNCELLE";
-        btn.disabled = false;
-    }
+    finally { btn.innerText = "DEĞİŞİKLİKLERİ YAYINLA"; btn.disabled = false; }
 };
 
-window.sendWp = () => {
-    const user = document.getElementById('userName').value || "Müşteri";
-    window.open(`https://wa.me/905412245256?text=Merhaba, ben ${user}. İnternet sitenizden ulaşıyorum, modelleriniz için bilgi almak istiyorum.`, "_blank");
+window.sendWp = () => { 
+    const u = document.getElementById('userName').value || "Değerli Müşterimiz";
+    window.open(`https://wa.me/905412245256?text=Merhaba, ben ${u}. Web sitenizden ulaşıyorum, özel tasarım modelleriniz hakkında bilgi alabilir miyim?`, "_blank"); 
 };
 
-function hideLoader() { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 500); }
+function hideLoader() { 
+    const l = document.getElementById('loader');
+    l.style.opacity = '0'; 
+    setTimeout(() => l.style.display = 'none', 600); 
+}
 
 init();
 </script>
