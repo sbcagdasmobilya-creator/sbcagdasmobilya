@@ -10,9 +10,9 @@
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
         
         :root {
-            --primary: #78350f; /* Amber 900 */
-            --accent: #d97706;  /* Amber 600 */
-            --dark: #1c1917;    /* Stone 900 */
+            --primary: #78350f;
+            --accent: #d97706;
+            --dark: #1c1917;
         }
 
         body { 
@@ -26,8 +26,13 @@
         }
 
         #loader { 
-            position: fixed; inset: 0; background: #fff; z-index: 10000; 
-            display: flex; align-items: center; justify-content: center; 
+            position: fixed; 
+            inset: 0; 
+            background: #fff; 
+            z-index: 10000; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
             transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
         }
 
@@ -37,7 +42,8 @@
             -webkit-backdrop-filter: blur(12px);
         }
 
-        .card-zoom:hover img, .card-zoom:hover video {
+        .card-zoom:hover img, 
+        .card-zoom:hover video {
             transform: scale(1.1);
         }
 
@@ -55,9 +61,11 @@
             border-radius: 10px;
         }
 
-        input:focus, select:focus {
-            ring: 2px;
-            ring-color: var(--accent);
+        /* FIXED: Corrected focus styles */
+        input:focus, 
+        select:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
         }
     </style>
 </head>
@@ -75,8 +83,8 @@
 <div class="hidden sm:flex bg-stone-900 text-stone-400 py-2 px-8 justify-between items-center text-[10px] font-bold tracking-widest uppercase border-b border-white/5">
     <div id="topPhone"><i class="fas fa-phone-alt text-amber-600 mr-2"></i> Yükleniyor...</div>
     <div class="flex gap-6">
-        <a id="ig_link" target="_blank" class="hover:text-white transition cursor-pointer">INSTAGRAM</a>
-        <a id="fb_link" target="_blank" class="hover:text-white transition cursor-pointer">FACEBOOK</a>
+        <a id="ig_link" href="#" target="_blank" class="hover:text-white transition cursor-pointer">INSTAGRAM</a>
+        <a id="fb_link" href="#" target="_blank" class="hover:text-white transition cursor-pointer">FACEBOOK</a>
     </div>
 </div>
 
@@ -157,7 +165,7 @@
         <button onclick="login()" class="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-black transition">Sistemi Aç</button>
     </div>
 
-    <div id="adminDashboard" class="hidden max-w-6xl mx-auto animate-in fade-in duration-500">
+    <div id="adminDashboard" class="hidden max-w-6xl mx-auto">
         <div class="bg-stone-900 text-white p-6 md:p-10 rounded-t-[3rem] flex flex-wrap justify-between items-center gap-6">
             <div>
                 <h2 class="text-2xl font-black italic uppercase tracking-tighter">KONTROL PANELİ</h2>
@@ -219,9 +227,26 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-const firebaseConfig = JSON.parse(__firebase_config);
+// FIXED: Added config validation and fallback
+const getFirebaseConfig = () => {
+    if (typeof __firebase_config !== 'undefined') {
+        return JSON.parse(__firebase_config);
+    }
+    // Fallback config - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
+    console.warn('Firebase config not found, using fallback. Replace this with your config!');
+    return {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+};
+
+const firebaseConfig = getFirebaseConfig();
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -236,9 +261,9 @@ let localData = {
         bg: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000" 
     },
     categories: [
-        { title: "LÜKS MUTFAKLAR", media: "https://images.unsplash.com/photo-1556911227-41a4a169b122", type: "img" },
-        { title: "MODERN BANYOLAR", media: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a", type: "img" },
-        { title: "ÖZEL TASARIM OFİSLER", media: "https://images.unsplash.com/photo-1524758631624-e2822e304c36", type: "img" }
+        { title: "LÜKS MUTFAKLAR", media: "https://images.unsplash.com/photo-1556911227-41a4a169b122?q=80&w=800", type: "img" },
+        { title: "MODERN BANYOLAR", media: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800", type: "img" },
+        { title: "ÖZEL TASARIM OFİSLER", media: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800", type: "img" }
     ],
     contact: { 
         phone: "0541 224 52 56", 
@@ -248,151 +273,249 @@ let localData = {
     }
 };
 
+// FIXED: Improved error handling for Firebase initialization
 async function init() {
     try {
+        // Try custom token first, fall back to anonymous
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
             await signInWithCustomToken(auth, __initial_auth_token);
         } else {
             await signInAnonymously(auth);
         }
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                onSnapshot(siteRef, (snap) => {
-                    if (snap.exists()) {
-                        localData = snap.data();
-                        render();
-                    } else {
-                        setDoc(siteRef, localData);
-                    }
-                    hideLoader();
-                }, (err) => { console.error(err); hideLoader(); });
+
+        // Listen for real-time updates
+        const unsubscribe = onSnapshot(
+            siteRef, 
+            (snap) => {
+                if (snap.exists()) {
+                    localData = snap.data();
+                } else {
+                    // Initialize Firebase with default data
+                    setDoc(siteRef, localData).catch(err => {
+                        console.error('Failed to initialize data:', err);
+                    });
+                }
+                render();
+                hideLoader();
+            }, 
+            (err) => { 
+                console.error('Snapshot error:', err);
+                // Still render with local data even if Firebase fails
+                render();
+                hideLoader();
             }
-        });
-    } catch (e) { console.error(e); hideLoader(); }
+        );
+    } catch (e) { 
+        console.error('Initialization error:', e);
+        // Fallback: render with local data
+        render();
+        hideLoader();
+    }
+}
+
+// FIXED: Added HTML escaping to prevent XSS
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function render() {
     // Hero
-    document.getElementById('heroTitle').innerText = localData.hero.title;
-    document.getElementById('heroSubtitle').innerText = localData.hero.sub;
-    document.getElementById('heroBg').style.backgroundImage = `url('${localData.hero.bg}')`;
-
-    // Top Bar & Footer Contact
-    document.getElementById('topPhone').innerHTML = `<i class="fas fa-phone-alt text-amber-600 mr-2"></i> ${localData.contact.phone}`;
-    document.getElementById('ig_link').href = localData.contact.ig;
-    document.getElementById('fb_link').href = localData.contact.fb;
+    const heroTitle = document.getElementById('heroTitle');
+    const heroSubtitle = document.getElementById('heroSubtitle');
+    const heroBg = document.getElementById('heroBg');
     
-    document.getElementById('footerContact').innerHTML = `
-        <div class="flex gap-6">
-            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-map-marker-alt"></i></div>
-            <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">ATÖLYE ADRESİ</p><p class="text-sm italic">${localData.contact.loc}</p></div>
-        </div>
-        <div class="flex gap-6">
-            <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-phone"></i></div>
-            <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">MÜŞTERİ HATTI</p><p class="text-sm italic">${localData.contact.phone}</p></div>
-        </div>
-    `;
+    if (heroTitle) heroTitle.textContent = localData.hero.title;
+    if (heroSubtitle) heroSubtitle.textContent = localData.hero.sub;
+    if (heroBg) heroBg.style.backgroundImage = `url('${localData.hero.bg}')`;
 
-    // Grid
+    // Top Bar
+    const topPhone = document.getElementById('topPhone');
+    if (topPhone) {
+        topPhone.innerHTML = `<i class="fas fa-phone-alt text-amber-600 mr-2"></i> ${escapeHtml(localData.contact.phone)}`;
+    }
+    
+    const igLink = document.getElementById('ig_link');
+    const fbLink = document.getElementById('fb_link');
+    if (igLink) igLink.href = localData.contact.ig;
+    if (fbLink) fbLink.href = localData.contact.fb;
+    
+    // Footer Contact
+    const footerContact = document.getElementById('footerContact');
+    if (footerContact) {
+        footerContact.innerHTML = `
+            <div class="flex gap-6">
+                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-map-marker-alt"></i></div>
+                <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">ATÖLYE ADRESİ</p><p class="text-sm italic">${escapeHtml(localData.contact.loc)}</p></div>
+            </div>
+            <div class="flex gap-6">
+                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-phone"></i></div>
+                <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">MÜŞTERİ HATTI</p><p class="text-sm italic">${escapeHtml(localData.contact.phone)}</p></div>
+            </div>
+        `;
+    }
+
+    // Category Grid
     const grid = document.getElementById('categoryGrid');
-    grid.innerHTML = (localData.categories || []).map(c => `
-        <div class="bg-white rounded-[2.5rem] overflow-hidden premium-shadow group border border-stone-100 transition-all hover:-translate-y-2">
-            <div class="h-80 overflow-hidden relative card-zoom">
-                ${c.type === 'video' ? `<video src="${c.media}" autoplay muted loop class="w-full h-full object-cover transition-transform duration-700"></video>` : `<img src="${c.media}" class="w-full h-full object-cover transition-transform duration-700">`}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                    <button onclick="sendWp()" class="text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">Teklif Al <i class="fas fa-arrow-right text-amber-500"></i></button>
+    if (grid && localData.categories) {
+        grid.innerHTML = localData.categories.map(c => `
+            <div class="bg-white rounded-[2.5rem] overflow-hidden premium-shadow group border border-stone-100 transition-all hover:-translate-y-2">
+                <div class="h-80 overflow-hidden relative card-zoom">
+                    ${c.type === 'video' 
+                        ? `<video src="${escapeHtml(c.media)}" autoplay muted loop playsinline class="w-full h-full object-cover transition-transform duration-700"></video>` 
+                        : `<img src="${escapeHtml(c.media)}" alt="${escapeHtml(c.title)}" class="w-full h-full object-cover transition-transform duration-700">`
+                    }
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                        <button onclick="sendWp()" class="text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">Teklif Al <i class="fas fa-arrow-right text-amber-500"></i></button>
+                    </div>
+                </div>
+                <div class="p-10 text-center">
+                    <h3 class="font-black italic uppercase text-xl text-stone-900 tracking-tight">${escapeHtml(c.title)}</h3>
+                    <div class="w-10 h-1 bg-amber-600 mx-auto mt-4 rounded-full opacity-30 group-hover:w-20 group-hover:opacity-100 transition-all"></div>
                 </div>
             </div>
-            <div class="p-10 text-center">
-                <h3 class="font-black italic uppercase text-xl text-stone-900 tracking-tight">${c.title}</h3>
-                <div class="w-10 h-1 bg-amber-600 mx-auto mt-4 rounded-full opacity-30 group-hover:w-20 group-hover:opacity-100 transition-all"></div>
-            </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
 
-    if (!document.getElementById('adminDashboard').classList.contains('hidden')) fillAdmin();
+    // Update admin panel if visible
+    const adminDashboard = document.getElementById('adminDashboard');
+    if (adminDashboard && !adminDashboard.classList.contains('hidden')) {
+        fillAdmin();
+    }
 }
 
 window.login = () => {
-    if (document.getElementById('adminPass').value === "sb2026") {
-        document.getElementById('adminDashboard').classList.remove('hidden');
-        document.getElementById('adminLogin').classList.add('hidden');
+    const adminPass = document.getElementById('adminPass');
+    const adminDashboard = document.getElementById('adminDashboard');
+    const adminLogin = document.getElementById('adminLogin');
+    
+    if (adminPass && adminPass.value === "sb2026") {
+        if (adminDashboard) adminDashboard.classList.remove('hidden');
+        if (adminLogin) adminLogin.classList.add('hidden');
         fillAdmin();
-    } else { alert("Hatalı Giriş!"); }
+    } else { 
+        alert("Hatalı Giriş!"); 
+    }
 };
 
 function fillAdmin() {
-    document.getElementById('in_hTitle').value = localData.hero.title;
-    document.getElementById('in_hSub').value = localData.hero.sub;
-    document.getElementById('in_hBg').value = localData.hero.bg;
-    document.getElementById('in_phone').value = localData.contact.phone;
-    document.getElementById('in_ig').value = localData.contact.ig;
-    document.getElementById('in_fb').value = localData.contact.fb;
-    document.getElementById('in_loc').value = localData.contact.loc;
+    // Hero inputs
+    const inputs = {
+        in_hTitle: localData.hero.title,
+        in_hSub: localData.hero.sub,
+        in_hBg: localData.hero.bg,
+        in_phone: localData.contact.phone,
+        in_ig: localData.contact.ig,
+        in_fb: localData.contact.fb,
+        in_loc: localData.contact.loc
+    };
 
+    Object.entries(inputs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+    });
+
+    // Category list
     const list = document.getElementById('adminCatList');
-    list.innerHTML = (localData.categories || []).map((c, i) => `
-        <div class="p-6 bg-stone-50 rounded-3xl border border-stone-200 grid md:grid-cols-4 gap-4 items-end">
-            <div class="flex flex-col gap-1">
-                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Başlık</label>
-                <input value="${c.title}" onchange="upCat(${i}, 'title', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+    if (list && localData.categories) {
+        list.innerHTML = localData.categories.map((c, i) => `
+            <div class="p-6 bg-stone-50 rounded-3xl border border-stone-200 grid md:grid-cols-4 gap-4 items-end">
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Başlık</label>
+                    <input value="${escapeHtml(c.title)}" onchange="upCat(${i}, 'title', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Medya URL</label>
+                    <input value="${escapeHtml(c.media)}" onchange="upCat(${i}, 'media', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+                </div>
+                <div class="flex flex-col gap-1">
+                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Tür</label>
+                    <select onchange="upCat(${i}, 'type', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
+                        <option value="img" ${c.type === 'img' ? 'selected' : ''}>Resim</option>
+                        <option value="video" ${c.type === 'video' ? 'selected' : ''}>Video</option>
+                    </select>
+                </div>
+                <button onclick="removeCat(${i})" class="bg-red-50 text-red-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-red-100 transition">KATEGORİYİ SİL</button>
             </div>
-            <div class="flex flex-col gap-1">
-                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Medya URL</label>
-                <input value="${c.media}" onchange="upCat(${i}, 'media', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
-            </div>
-            <div class="flex flex-col gap-1">
-                <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Tür</label>
-                <select onchange="upCat(${i}, 'type', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
-                    <option value="img" ${c.type === 'img' ? 'selected' : ''}>Resim</option>
-                    <option value="video" ${c.type === 'video' ? 'selected' : ''}>Video</option>
-                </select>
-            </div>
-            <button onclick="removeCat(${i})" class="bg-red-50 text-red-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-red-100 transition">KATEGORİYİ SİL</button>
-        </div>
-    `).join('');
+        `).join('');
+    }
 }
 
-window.upCat = (i, f, v) => { localData.categories[i][f] = v; };
-window.removeCat = (i) => { localData.categories.splice(i, 1); fillAdmin(); };
+window.upCat = (i, f, v) => { 
+    if (localData.categories && localData.categories[i]) {
+        localData.categories[i][f] = v; 
+    }
+};
+
+window.removeCat = (i) => { 
+    if (localData.categories) {
+        localData.categories.splice(i, 1); 
+        fillAdmin(); 
+    }
+};
+
 window.addNewCat = () => { 
-    if(!localData.categories) localData.categories = [];
+    if (!localData.categories) localData.categories = [];
     localData.categories.push({title: 'Yeni Kategori', media: '', type: 'img'}); 
     fillAdmin(); 
 };
 
 window.saveChanges = async () => {
-    if(!auth.currentUser) return;
+    if (!auth.currentUser) {
+        alert("Lütfen önce giriş yapın!");
+        return;
+    }
+
     const btn = document.getElementById('saveBtn');
-    btn.innerText = "YAYINLANIYOR...";
+    if (!btn) return;
+    
+    btn.textContent = "YAYINLANIYOR...";
     btn.disabled = true;
 
-    localData.hero.title = document.getElementById('in_hTitle').value;
-    localData.hero.sub = document.getElementById('in_hSub').value;
-    localData.hero.bg = document.getElementById('in_hBg').value;
-    localData.contact.phone = document.getElementById('in_phone').value;
-    localData.contact.ig = document.getElementById('in_ig').value;
-    localData.contact.fb = document.getElementById('in_fb').value;
-    localData.contact.loc = document.getElementById('in_loc').value;
+    // Get values from inputs
+    const getValue = (id) => {
+        const el = document.getElementById(id);
+        return el ? el.value : '';
+    };
+
+    localData.hero.title = getValue('in_hTitle');
+    localData.hero.sub = getValue('in_hSub');
+    localData.hero.bg = getValue('in_hBg');
+    localData.contact.phone = getValue('in_phone');
+    localData.contact.ig = getValue('in_ig');
+    localData.contact.fb = getValue('in_fb');
+    localData.contact.loc = getValue('in_loc');
 
     try {
         await setDoc(siteRef, localData);
         alert("Siteniz Başarıyla Güncellendi!");
-    } catch (e) { alert("Hata: " + e.message); }
-    finally { btn.innerText = "DEĞİŞİKLİKLERİ YAYINLA"; btn.disabled = false; }
+    } catch (e) { 
+        console.error('Save error:', e);
+        alert("Hata: " + e.message); 
+    } finally { 
+        btn.textContent = "DEĞİŞİKLİKLERİ YAYINLA"; 
+        btn.disabled = false; 
+    }
 };
 
 window.sendWp = () => { 
-    const u = document.getElementById('userName').value || "Değerli Müşterimiz";
-    window.open(`https://wa.me/905412245256?text=Merhaba, ben ${u}. Web sitenizden ulaşıyorum, özel tasarım modelleriniz hakkında bilgi alabilir miyim?`, "_blank"); 
+    const userNameEl = document.getElementById('userName');
+    const userName = userNameEl ? userNameEl.value : '';
+    const name = userName || "Değerli Müşterimiz";
+    const message = encodeURIComponent(`Merhaba, ben ${name}. Web sitenizden ulaşıyorum, özel tasarım modelleriniz hakkında bilgi alabilir miyim?`);
+    window.open(`https://wa.me/905412245256?text=${message}`, "_blank"); 
 };
 
 function hideLoader() { 
-    const l = document.getElementById('loader');
-    l.style.opacity = '0'; 
-    setTimeout(() => l.style.display = 'none', 600); 
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.opacity = '0'; 
+        setTimeout(() => loader.style.display = 'none', 600); 
+    }
 }
 
+// Start the app
 init();
 </script>
 </body>
