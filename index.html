@@ -1,555 +1,405 @@
-<!DOCTYPE html>
-<html lang="tr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SB Çağdaş Mobilya | Sanatın Mobilya Hali</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Beylikdüzü'nde özel tasarım mutfak, banyo ve ofis mobilyaları. El işçiliği ile hayat bulan butik mobilya çözümleri. Ücretsiz keşif ve ölçüm hizmeti.">
-    <meta name="keywords" content="beylikdüzü mobilya, sb çağdaş mobilya, beylikdüzü mutfak dolabı, beylikdüzü banyo mobilyası, beylikdüzü özel mobilya, sb mobilya, çağdaş mobilya beylikdüzü, yakuplu mobilya, beylikdüzü mobilya firmaları, beylikdüzü mobilyacı">
-    <meta name="author" content="SB Çağdaş Mobilya">
-    <meta name="robots" content="index, follow">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://sbcagdasmobilya-creator.github.io/sbcagdasmobilya/">
-    <meta property="og:title" content="SB Çağdaş Mobilya | Özel Tasarım Mobilya - Beylikdüzü">
-    <meta property="og:description" content="Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri. El işçiliği ile üretim.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://sbcagdasmobilya-creator.github.io/sbcagdasmobilya/">
-    <meta property="twitter:title" content="SB Çağdaş Mobilya | Özel Tasarım Mobilya - Beylikdüzü">
-    <meta property="twitter:description" content="Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri. El işçiliği ile üretim.">
-    <meta property="twitter:image" content="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=1200">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Plus Jakarta Sans', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&display=swap');
-        
-        :root {
-            --primary: #78350f;
-            --accent: #d97706;
-            --dark: #1c1917;
-        }
+import React, { useState, useEffect } from 'react';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, doc, onSnapshot, setDoc } from 'firebase/firestore';
+import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
 
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            scroll-behavior: smooth; 
-            background-color: #fafaf9;
-        }
-
-        .hero-overlay {
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.8) 100%);
-        }
-
-        #loader { 
-            position: fixed; 
-            inset: 0; 
-            background: #fff; 
-            z-index: 10000; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-
-        .nav-glass {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-
-        .card-zoom:hover img, 
-        .card-zoom:hover video {
-            transform: scale(1.1);
-        }
-
-        .premium-shadow {
-            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.1);
-        }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 60px;
-            height: 3px;
-            background: var(--accent);
-            margin: 15px auto 0;
-            border-radius: 10px;
-        }
-
-        /* FIXED: Corrected focus styles */
-        input:focus, 
-        select:focus {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-    </style>
-</head>
-<body class="text-stone-900">
-
-<!-- YÜKLEME EKRANI -->
-<div id="loader">
-    <div class="text-center">
-        <div class="w-12 h-12 border-[3px] border-amber-900 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <p class="text-[10px] font-bold text-stone-400 tracking-[0.3em] uppercase">SB ÇAĞDAŞ MOBİLYA</p>
-    </div>
-</div>
-
-<!-- ÜST BİLGİ -->
-<div class="hidden sm:flex bg-stone-900 text-stone-400 py-2 px-8 justify-between items-center text-[10px] font-bold tracking-widest uppercase border-b border-white/5">
-    <div id="topPhone"><i class="fas fa-phone-alt text-amber-600 mr-2"></i> Yükleniyor...</div>
-    <div class="flex gap-6">
-        <a id="ig_link" href="#" target="_blank" class="hover:text-white transition cursor-pointer">INSTAGRAM</a>
-        <a id="fb_link" href="#" target="_blank" class="hover:text-white transition cursor-pointer">FACEBOOK</a>
-    </div>
-</div>
-
-<!-- NAVBAR -->
-<nav class="nav-glass sticky top-0 z-[100] px-6 py-4 flex justify-between items-center border-b border-stone-100 shadow-sm">
-    <div class="flex flex-col">
-        <span class="text-2xl font-extrabold text-stone-950 leading-none tracking-tighter italic uppercase">SB ÇAĞDAŞ</span>
-        <span class="text-[8px] font-bold text-amber-700 tracking-[0.4em] uppercase mt-1">Mobilya & Tasarım</span>
-    </div>
-    <div class="flex items-center gap-8">
-        <a href="#services" class="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-600 hover:text-amber-700 transition">Koleksiyon</a>
-        <a href="#contact" class="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-600 hover:text-amber-700 transition">İletişim</a>
-        <a href="#admin-gate" class="text-stone-300 hover:text-red-500 transition text-sm"><i class="fas fa-cog"></i></a>
-    </div>
-</nav>
-
-<!-- HERO -->
-<header id="heroSection" class="relative h-[85vh] flex items-center justify-center overflow-hidden bg-stone-900">
-    <div id="heroBg" class="absolute inset-0 bg-cover bg-center transition-transform duration-[10s] scale-105"></div>
-    <div class="absolute inset-0 hero-overlay"></div>
-    
-    <div class="relative z-10 text-center text-white px-6">
-        <span class="block text-amber-500 font-bold tracking-[0.5em] text-[10px] uppercase mb-4 animate-pulse">Beylikdüzü'nün Zanaat Merkezi</span>
-        <h1 id="heroTitle" class="text-5xl md:text-8xl font-black mb-8 italic uppercase tracking-tighter leading-none">...</h1>
-        <p id="heroSubtitle" class="text-sm md:text-xl font-light opacity-80 max-w-2xl mx-auto mb-12 italic leading-relaxed">...</p>
-        <div class="flex flex-col sm:flex-row justify-center gap-4">
-            <a href="#services" class="bg-white text-stone-900 px-12 py-5 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-amber-600 hover:text-white transition-all transform hover:-translate-y-1">Modelleri İncele</a>
-            <button onclick="sendWp()" class="bg-emerald-600 text-white px-12 py-5 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition-all transform hover:-translate-y-1 shadow-xl">Hızlı Teklif Al</button>
-        </div>
-    </div>
-</header>
-
-<!-- HİZMETLER -->
-<section id="services" class="py-24 px-6 max-w-7xl mx-auto">
-    <div class="text-center mb-20">
-        <h2 class="text-3xl md:text-5xl font-black italic uppercase text-stone-900 tracking-tighter section-title">Neler Yapıyoruz?</h2>
-        <p class="mt-6 text-stone-500 text-sm italic">Her mekana özel, el işçiliği ile hayat bulan tasarımlar.</p>
-    </div>
-    
-    <div id="categoryGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- JS ile dolacak -->
-    </div>
-</section>
-
-<!-- İLETİŞİM ŞERİDİ -->
-<section id="contact" class="bg-stone-950 text-white py-24 px-6 overflow-hidden relative">
-    <div class="absolute top-0 right-0 w-1/3 h-full bg-amber-600/5 -skew-x-12 translate-x-1/2"></div>
-    <div class="max-w-7xl mx-auto grid lg:grid-cols-2 gap-16 relative z-10">
-        <div>
-            <h3 class="text-4xl font-black italic uppercase mb-8 text-amber-500 tracking-tighter">Bize Ulaşın</h3>
-            <p class="text-stone-400 mb-12 italic text-sm leading-relaxed">Özel ölçü mobilya ve dekorasyon projeleriniz için Beylikdüzü'ndeki atölyemize bekliyoruz veya bir telefonla keşfe geliyoruz.</p>
-            
-            <div id="footerContact" class="space-y-8">
-                <!-- JS -->
-            </div>
-        </div>
-        
-        <div class="bg-white/5 p-8 md:p-12 rounded-[3rem] border border-white/10 backdrop-blur-xl">
-            <h4 class="text-xl font-bold mb-6 text-white uppercase italic tracking-widest">Hızlı Mesaj</h4>
-            <div class="space-y-4">
-                <input id="userName" type="text" placeholder="Adınız Soyadınız" class="w-full bg-stone-900 border-none p-5 rounded-2xl text-white outline-none focus:ring-2 ring-amber-600 transition">
-                <button onclick="sendWp()" class="w-full bg-emerald-600 hover:bg-emerald-700 p-5 rounded-2xl font-black uppercase text-xs tracking-widest transition-all flex items-center justify-center gap-3">
-                    <i class="fab fa-whatsapp text-xl"></i> WHATSAPP İLE GÖNDER
-                </button>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- YÖNETİM PANELİ -->
-<section id="admin-gate" class="py-20 bg-stone-100 px-6 border-t-4 border-red-600/20">
-    <div id="adminLogin" class="text-center max-w-sm mx-auto">
-        <div class="w-16 h-16 bg-white rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
-            <i class="fas fa-fingerprint text-stone-300 text-2xl"></i>
-        </div>
-        <h3 class="font-bold uppercase tracking-[0.2em] text-xs mb-6 text-stone-500 italic">Yönetici Girişi</h3>
-        <input id="adminPass" type="password" placeholder="Şifre" class="w-full p-4 rounded-2xl border-none shadow-sm outline-none focus:ring-2 ring-amber-600 mb-4 text-center">
-        <button onclick="login()" class="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-black transition">Sistemi Aç</button>
-    </div>
-
-    <div id="adminDashboard" class="hidden max-w-6xl mx-auto">
-        <div class="bg-stone-900 text-white p-6 md:p-10 rounded-t-[3rem] flex flex-wrap justify-between items-center gap-6">
-            <div>
-                <h2 class="text-2xl font-black italic uppercase tracking-tighter">KONTROL PANELİ</h2>
-                <p class="text-[10px] text-amber-500 font-bold uppercase tracking-widest mt-1">Siteniz Buradan Canlı Olarak Güncellenir</p>
-            </div>
-            <button onclick="saveChanges()" id="saveBtn" class="bg-emerald-500 hover:bg-emerald-600 px-12 py-4 rounded-2xl font-black text-xs uppercase shadow-xl transition active:scale-95">DEĞİŞİKLİKLERİ YAYINLA</button>
-        </div>
-        
-        <div class="bg-white p-8 md:p-16 rounded-b-[3rem] shadow-2xl space-y-20">
-            <!-- Hero Settings -->
-            <div class="space-y-8">
-                <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b pb-4"><i class="fas fa-desktop"></i> ANA EKRAN AYARLARI</h4>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Ana Başlık</label>
-                        <input id="in_hTitle" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    </div>
-                    <div class="flex flex-col gap-2">
-                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Alt Yazı</label>
-                        <input id="in_hSub" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    </div>
-                    <div class="flex flex-col gap-2 md:col-span-2">
-                        <label class="text-[10px] font-bold text-stone-400 uppercase ml-1">Arkaplan Görsel Linki (URL)</label>
-                        <input id="in_hBg" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Categories -->
-            <div class="space-y-8">
-                <div class="flex justify-between items-center border-b pb-4">
-                    <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3"><i class="fas fa-images"></i> ÜRÜN KATEGORİLERİ</h4>
-                    <button onclick="addNewCat()" class="bg-stone-900 text-white px-6 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-amber-700 transition">+ YENİ KATEGORİ</button>
-                </div>
-                <div id="adminCatList" class="grid gap-6">
-                    <!-- Dinamik -->
-                </div>
-            </div>
-
-            <!-- Contact Settings -->
-            <div class="space-y-8">
-                <h4 class="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b pb-4"><i class="fas fa-phone"></i> İLETİŞİM BİLGİLERİ</h4>
-                <div class="grid md:grid-cols-2 gap-6">
-                    <input id="in_phone" placeholder="Telefon No" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    <input id="in_ig" placeholder="Instagram Link" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    <input id="in_fb" placeholder="Facebook Link" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                    <input id="in_loc" placeholder="Atölye Adresi" class="p-4 bg-stone-50 rounded-2xl border-none focus:ring-2 ring-amber-600">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<footer class="bg-stone-950 py-12 text-center border-t border-white/5">
-    <div class="text-amber-600 font-black italic text-xl mb-4 uppercase tracking-tighter">SB ÇAĞDAŞ MOBİLYA</div>
-    <div class="text-stone-600 text-[9px] font-bold uppercase tracking-[0.6em]">Beylikdüzü / İSTANBUL &copy; 2026 | Tüm Hakları Saklıdır.</div>
-</footer>
-
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-// FIXED: Added config validation and fallback
-const getFirebaseConfig = () => {
-    if (typeof __firebase_config !== 'undefined') {
-        return JSON.parse(__firebase_config);
-    }
-    // Fallback config - REPLACE WITH YOUR ACTUAL FIREBASE CONFIG
-    console.warn('Firebase config not found, using fallback. Replace this with your config!');
-    return {
-        apiKey: "YOUR_API_KEY",
-        authDomain: "YOUR_PROJECT.firebaseapp.com",
-        projectId: "YOUR_PROJECT_ID",
-        storageBucket: "YOUR_PROJECT.appspot.com",
-        messagingSenderId: "YOUR_SENDER_ID",
-        appId: "YOUR_APP_ID"
-    };
-};
-
-const firebaseConfig = getFirebaseConfig();
+// Firebase yapılandırması (environment tarafından sağlanır)
+const firebaseConfig = JSON.parse(window.__firebase_config);
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'sb-cagdas-premium-v1';
+const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'sb-mobilya-full-control';
 
-const siteRef = doc(db, 'artifacts', appId, 'public', 'data', 'siteData', 'master');
-
-let localData = {
-    hero: { 
-        title: "SİZ HAYAL EDİN, BİZ TASARLAYALIM", 
-        sub: "Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri.", 
-        bg: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000" 
+export default function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [passInput, setPassInput] = useState("");
+  const [activeGallery, setActiveGallery] = useState(null);
+  
+  // Varsayılan Site Verileri
+  const [siteData, setSiteData] = useState({
+    hero: {
+      title: "SİZ HAYAL EDİN, BİZ TASARLAYALIM",
+      subtitle: "Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri.",
+      bgImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000"
+    },
+    contact: {
+      phone: "0541 224 52 56",
+      instagram: "sbcagdasmobilya",
+      address: "Yakuplu Mah. Beylikdüzü / İSTANBUL"
     },
     categories: [
-        { title: "LÜKS MUTFAKLAR", media: "https://images.unsplash.com/photo-1556911227-41a4a169b122?q=80&w=800", type: "img" },
-        { title: "MODERN BANYOLAR", media: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?q=80&w=800", type: "img" },
-        { title: "ÖZEL TASARIM OFİSLER", media: "https://images.unsplash.com/photo-1524758631624-e2822e304c36?q=80&w=800", type: "img" }
-    ],
-    contact: { 
-        phone: "0541 224 52 56", 
-        ig: "https://instagram.com", 
-        fb: "https://facebook.com", 
-        loc: "Yakuplu Mah. Beylikdüzü / İSTANBUL" 
-    }
-};
+      { id: 1, title: "MUTFAKLAR", images: [] },
+      { id: 2, title: "BANYOLAR", images: [] },
+      { id: 3, title: "OFİSLER", images: [] }
+    ]
+  });
 
-// FIXED: Improved error handling for Firebase initialization
-async function init() {
-    try {
-        // Try custom token first, fall back to anonymous
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-            await signInWithCustomToken(auth, __initial_auth_token);
+  // Hata veren segment sayısını düzeltmek için referansı güncelliyoruz
+  // RULE 1: /artifacts/{appId}/public/data/{collectionName}/{documentId}
+  // artifacts(1) / appId(2) / public(3) / data(4) / siteContent(5) / master(6) -> Çift sayı (6 segment)
+  const getDocRef = () => doc(db, 'artifacts', appId, 'public', 'data', 'siteContent', 'master');
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
+          await signInWithCustomToken(auth, window.__initial_auth_token);
         } else {
-            await signInAnonymously(auth);
+          await signInAnonymously(auth);
         }
-
-        // Listen for real-time updates
-        const unsubscribe = onSnapshot(
-            siteRef, 
-            (snap) => {
-                if (snap.exists()) {
-                    localData = snap.data();
-                } else {
-                    // Initialize Firebase with default data
-                    setDoc(siteRef, localData).catch(err => {
-                        console.error('Failed to initialize data:', err);
-                    });
-                }
-                render();
-                hideLoader();
-            }, 
-            (err) => { 
-                console.error('Snapshot error:', err);
-                // Still render with local data even if Firebase fails
-                render();
-                hideLoader();
-            }
-        );
-    } catch (e) { 
-        console.error('Initialization error:', e);
-        // Fallback: render with local data
-        render();
-        hideLoader();
-    }
-}
-
-// FIXED: Added HTML escaping to prevent XSS
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function render() {
-    // Hero
-    const heroTitle = document.getElementById('heroTitle');
-    const heroSubtitle = document.getElementById('heroSubtitle');
-    const heroBg = document.getElementById('heroBg');
-    
-    if (heroTitle) heroTitle.textContent = localData.hero.title;
-    if (heroSubtitle) heroSubtitle.textContent = localData.hero.sub;
-    if (heroBg) heroBg.style.backgroundImage = `url('${localData.hero.bg}')`;
-
-    // Top Bar
-    const topPhone = document.getElementById('topPhone');
-    if (topPhone) {
-        topPhone.innerHTML = `<i class="fas fa-phone-alt text-amber-600 mr-2"></i> ${escapeHtml(localData.contact.phone)}`;
-    }
-    
-    const igLink = document.getElementById('ig_link');
-    const fbLink = document.getElementById('fb_link');
-    if (igLink) igLink.href = localData.contact.ig;
-    if (fbLink) fbLink.href = localData.contact.fb;
-    
-    // Footer Contact
-    const footerContact = document.getElementById('footerContact');
-    if (footerContact) {
-        footerContact.innerHTML = `
-            <div class="flex gap-6">
-                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-map-marker-alt"></i></div>
-                <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">ATÖLYE ADRESİ</p><p class="text-sm italic">${escapeHtml(localData.contact.loc)}</p></div>
-            </div>
-            <div class="flex gap-6">
-                <div class="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10 text-amber-500"><i class="fas fa-phone"></i></div>
-                <div><p class="text-[9px] font-bold text-amber-600 uppercase mb-1">MÜŞTERİ HATTI</p><p class="text-sm italic">${escapeHtml(localData.contact.phone)}</p></div>
-            </div>
-        `;
-    }
-
-    // Category Grid
-    const grid = document.getElementById('categoryGrid');
-    if (grid && localData.categories) {
-        grid.innerHTML = localData.categories.map(c => `
-            <div class="bg-white rounded-[2.5rem] overflow-hidden premium-shadow group border border-stone-100 transition-all hover:-translate-y-2">
-                <div class="h-80 overflow-hidden relative card-zoom">
-                    ${c.type === 'video' 
-                        ? `<video src="${escapeHtml(c.media)}" autoplay muted loop playsinline class="w-full h-full object-cover transition-transform duration-700"></video>` 
-                        : `<img src="${escapeHtml(c.media)}" alt="${escapeHtml(c.title)}" class="w-full h-full object-cover transition-transform duration-700">`
-                    }
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                        <button onclick="sendWp()" class="text-white text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">Teklif Al <i class="fas fa-arrow-right text-amber-500"></i></button>
-                    </div>
-                </div>
-                <div class="p-10 text-center">
-                    <h3 class="font-black italic uppercase text-xl text-stone-900 tracking-tight">${escapeHtml(c.title)}</h3>
-                    <div class="w-10 h-1 bg-amber-600 mx-auto mt-4 rounded-full opacity-30 group-hover:w-20 group-hover:opacity-100 transition-all"></div>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    // Update admin panel if visible
-    const adminDashboard = document.getElementById('adminDashboard');
-    if (adminDashboard && !adminDashboard.classList.contains('hidden')) {
-        fillAdmin();
-    }
-}
-
-window.login = () => {
-    const adminPass = document.getElementById('adminPass');
-    const adminDashboard = document.getElementById('adminDashboard');
-    const adminLogin = document.getElementById('adminLogin');
-    
-    if (adminPass && adminPass.value === "sb2026") {
-        if (adminDashboard) adminDashboard.classList.remove('hidden');
-        if (adminLogin) adminLogin.classList.add('hidden');
-        fillAdmin();
-    } else { 
-        alert("Hatalı Giriş!"); 
-    }
-};
-
-function fillAdmin() {
-    // Hero inputs
-    const inputs = {
-        in_hTitle: localData.hero.title,
-        in_hSub: localData.hero.sub,
-        in_hBg: localData.hero.bg,
-        in_phone: localData.contact.phone,
-        in_ig: localData.contact.ig,
-        in_fb: localData.contact.fb,
-        in_loc: localData.contact.loc
+      } catch (err) {
+        console.error("Auth error:", err);
+      }
     };
+    initAuth();
 
-    Object.entries(inputs).forEach(([id, value]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value;
+    const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      if (currentUser) {
+        const docRef = getDocRef();
+        const unsubData = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            setSiteData(docSnap.data());
+          } else {
+            // Eğer belge yoksa oluştur
+            setDoc(docRef, siteData).catch(e => console.error("Init save error:", e));
+          }
+          setLoading(false);
+        }, (err) => {
+          console.error("Firestore error:", err);
+          setLoading(false);
+        });
+        return () => unsubData();
+      }
     });
 
-    // Category list
-    const list = document.getElementById('adminCatList');
-    if (list && localData.categories) {
-        list.innerHTML = localData.categories.map((c, i) => `
-            <div class="p-6 bg-stone-50 rounded-3xl border border-stone-200 grid md:grid-cols-4 gap-4 items-end">
-                <div class="flex flex-col gap-1">
-                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Başlık</label>
-                    <input value="${escapeHtml(c.title)}" onchange="upCat(${i}, 'title', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Medya URL</label>
-                    <input value="${escapeHtml(c.media)}" onchange="upCat(${i}, 'media', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
-                </div>
-                <div class="flex flex-col gap-1">
-                    <label class="text-[9px] font-bold text-stone-400 pl-1 uppercase">Tür</label>
-                    <select onchange="upCat(${i}, 'type', this.value)" class="p-3 bg-white rounded-xl border-none shadow-sm focus:ring-2 ring-amber-600 outline-none">
-                        <option value="img" ${c.type === 'img' ? 'selected' : ''}>Resim</option>
-                        <option value="video" ${c.type === 'video' ? 'selected' : ''}>Video</option>
-                    </select>
-                </div>
-                <button onclick="removeCat(${i})" class="bg-red-50 text-red-600 p-3 rounded-xl font-bold text-[10px] uppercase hover:bg-red-100 transition">KATEGORİYİ SİL</button>
-            </div>
-        `).join('');
-    }
-}
+    return () => unsubAuth();
+  }, []);
 
-window.upCat = (i, f, v) => { 
-    if (localData.categories && localData.categories[i]) {
-        localData.categories[i][f] = v; 
-    }
-};
-
-window.removeCat = (i) => { 
-    if (localData.categories) {
-        localData.categories.splice(i, 1); 
-        fillAdmin(); 
-    }
-};
-
-window.addNewCat = () => { 
-    if (!localData.categories) localData.categories = [];
-    localData.categories.push({title: 'Yeni Kategori', media: '', type: 'img'}); 
-    fillAdmin(); 
-};
-
-window.saveChanges = async () => {
-    if (!auth.currentUser) {
-        alert("Lütfen önce giriş yapın!");
-        return;
-    }
-
-    const btn = document.getElementById('saveBtn');
-    if (!btn) return;
-    
-    btn.textContent = "YAYINLANIYOR...";
-    btn.disabled = true;
-
-    // Get values from inputs
-    const getValue = (id) => {
-        const el = document.getElementById(id);
-        return el ? el.value : '';
-    };
-
-    localData.hero.title = getValue('in_hTitle');
-    localData.hero.sub = getValue('in_hSub');
-    localData.hero.bg = getValue('in_hBg');
-    localData.contact.phone = getValue('in_phone');
-    localData.contact.ig = getValue('in_ig');
-    localData.contact.fb = getValue('in_fb');
-    localData.contact.loc = getValue('in_loc');
-
+  const saveToFirebase = async (newData) => {
+    if (!user) return;
     try {
-        await setDoc(siteRef, localData);
-        alert("Siteniz Başarıyla Güncellendi!");
-    } catch (e) { 
-        console.error('Save error:', e);
-        alert("Hata: " + e.message); 
-    } finally { 
-        btn.textContent = "DEĞİŞİKLİKLERİ YAYINLA"; 
-        btn.disabled = false; 
+      await setDoc(getDocRef(), newData);
+    } catch (err) {
+      console.error(err);
+      alert("Hata: Veri kaydedilemedi. Yetki sorunu olabilir.");
     }
-};
+  };
 
-window.sendWp = () => { 
-    const userNameEl = document.getElementById('userName');
-    const userName = userNameEl ? userNameEl.value : '';
-    const name = userName || "Değerli Müşterimiz";
-    const message = encodeURIComponent(`Merhaba, ben ${name}. Web sitenizden ulaşıyorum, özel tasarım modelleriniz hakkında bilgi alabilir miyim?`);
-    window.open(`https://wa.me/905412245256?text=${message}`, "_blank"); 
-};
-
-function hideLoader() { 
-    const loader = document.getElementById('loader');
-    if (loader) {
-        loader.style.opacity = '0'; 
-        setTimeout(() => loader.style.display = 'none', 600); 
+  const handleAdminLogin = () => {
+    if (passInput === "3421") {
+      setIsAdmin(true);
+      setTimeout(() => {
+        document.getElementById('admin-panel')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      alert("Hatalı Şifre!");
     }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-stone-50 text-amber-900">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-amber-900 mb-4 mr-4"></div>
+        <span className="font-bold tracking-widest uppercase text-sm">Sistem Yükleniyor...</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#fafaf9] text-stone-900 font-sans selection:bg-amber-200">
+      
+      {/* NAVBAR */}
+      <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-stone-200 px-6 py-4 flex justify-between items-center">
+        <div className="flex flex-col">
+          <span className="text-2xl font-black text-stone-950 leading-none italic uppercase tracking-tighter">SB ÇAĞDAŞ</span>
+          <span className="text-[8px] font-bold text-amber-700 tracking-[0.4em] uppercase mt-1">Mobilya & Tasarım</span>
+        </div>
+        <div className="flex gap-6 items-center">
+          <a href="#koleksiyon" className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:text-amber-700">Koleksiyon</a>
+          <button onClick={() => {
+            const adminSec = document.getElementById('admin-panel');
+            adminSec?.scrollIntoView({ behavior: 'smooth' });
+          }} className="text-stone-300 hover:text-red-600 transition text-sm"><i className="fas fa-cog"></i></button>
+        </div>
+      </nav>
+
+      {/* HERO SECTION */}
+      <header className="relative h-[75vh] flex items-center justify-center overflow-hidden bg-stone-900">
+        <div 
+          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105" 
+          style={{ backgroundImage: `url('${siteData.hero.bgImage}')` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
+        
+        <div className="relative z-10 text-center text-white px-6 max-w-4xl">
+          <h1 className="text-4xl md:text-7xl font-black mb-6 italic uppercase tracking-tighter leading-none">
+            {siteData.hero.title}
+          </h1>
+          <p className="text-sm md:text-xl font-light opacity-80 mb-10 italic leading-relaxed">
+            {siteData.hero.subtitle}
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <a href="#koleksiyon" className="bg-white text-stone-900 px-8 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-amber-600 hover:text-white transition shadow-xl">Koleksiyonu İncele</a>
+            <a href={`https://wa.me/90${siteData.contact.phone.replace(/\s/g, '')}`} target="_blank" rel="noreferrer" className="bg-emerald-600 text-white px-8 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition shadow-xl">Teklif Al</a>
+          </div>
+        </div>
+      </header>
+
+      {/* CATEGORIES / GALLERY */}
+      <section id="koleksiyon" className="py-24 px-6 max-w-7xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-5xl font-black italic uppercase text-stone-900 tracking-tighter">Neler Yapıyoruz?</h2>
+          <div className="w-20 h-1 bg-amber-600 mx-auto mt-4 rounded-full"></div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
+          {siteData.categories.map((cat, idx) => (
+            <div key={cat.id} className="group bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-stone-100 hover:-translate-y-2 transition-all duration-500">
+              <div className="h-72 overflow-hidden relative">
+                {cat.images && cat.images.length > 0 ? (
+                  <img src={cat.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
+                ) : (
+                  <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-300">
+                    <i className="fas fa-image text-5xl"></i>
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                   <button onClick={() => setActiveGallery(idx)} className="bg-white text-stone-900 p-4 rounded-full shadow-xl"><i className="fas fa-search-plus"></i></button>
+                </div>
+              </div>
+              <div className="p-8 text-center">
+                <h3 className="font-black italic uppercase text-xl text-stone-900 tracking-tight">{cat.title}</h3>
+                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-2">{cat.images?.length || 0} Tasarım</p>
+                <button 
+                  onClick={() => setActiveGallery(idx)}
+                  className="mt-6 w-full border-2 border-stone-900 text-stone-900 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-stone-900 hover:text-white transition"
+                >
+                  Galeriyi İncele
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* GALLERY MODAL */}
+      {activeGallery !== null && (
+        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col p-6 overflow-hidden">
+          <div className="flex justify-between items-center mb-8 max-w-7xl mx-auto w-full">
+            <h2 className="text-2xl md:text-4xl font-black text-white italic uppercase">{siteData.categories[activeGallery].title}</h2>
+            <button onClick={() => setActiveGallery(null)} className="bg-white/10 hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition">
+              <i className="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto max-w-7xl mx-auto w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-12">
+            {siteData.categories[activeGallery].images?.map((img, i) => (
+              <div key={i} className="aspect-square rounded-2xl overflow-hidden group">
+                <img src={img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+              </div>
+            ))}
+            {(!siteData.categories[activeGallery].images || siteData.categories[activeGallery].images.length === 0) && (
+              <p className="col-span-full text-center text-stone-500 py-20 italic">Bu galeride henüz fotoğraf yok.</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* FOOTER */}
+      <footer className="bg-stone-950 text-white py-20 px-6 border-t border-white/5">
+        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
+          <div className="flex flex-col">
+            <span className="text-3xl font-black italic uppercase text-amber-500 tracking-tighter">SB ÇAĞDAŞ</span>
+            <p className="mt-4 text-stone-500 text-sm leading-relaxed italic">Beylikdüzü'nde hayallerinizi gerçeğe dönüştüren butik mobilya atölyesi.</p>
+          </div>
+          <div className="space-y-4">
+             <h4 className="font-bold uppercase text-[10px] tracking-widest text-amber-600">İletişim</h4>
+             <p className="text-xl font-light italic">{siteData.contact.phone}</p>
+             <p className="text-sm text-stone-400">{siteData.contact.address}</p>
+          </div>
+          <div className="flex flex-col items-center md:items-end gap-4">
+             <a href={`https://instagram.com/${siteData.contact.instagram}`} target="_blank" rel="noreferrer" className="bg-white/5 p-4 rounded-2xl hover:bg-amber-600 transition border border-white/10">
+               <i className="fab fa-instagram text-2xl"></i>
+             </a>
+             <span className="text-[10px] font-bold text-stone-600 uppercase tracking-[0.4em]">İSTANBUL - 2026</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* ADMIN PANEL */}
+      <section id="admin-panel" className="py-24 bg-stone-100 px-6">
+        {!isAdmin ? (
+          <div className="max-w-md mx-auto text-center bg-white p-10 rounded-[3rem] shadow-xl border border-stone-200">
+            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+              <i className="fas fa-lock text-2xl"></i>
+            </div>
+            <h3 className="font-black uppercase tracking-widest text-xs mb-6 text-stone-500 italic">YÖNETİCİ GİRİŞİ</h3>
+            <input 
+              type="password" 
+              placeholder="Şifre" 
+              className="w-full p-4 rounded-2xl border-none shadow-inner bg-stone-50 mb-4 text-center outline-none focus:ring-2 ring-amber-600 transition"
+              value={passInput}
+              onChange={(e) => setPassInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
+            />
+            <button onClick={handleAdminLogin} className="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-amber-700 transition active:scale-95 shadow-lg">Sistemi Aç</button>
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto">
+            <div className="bg-stone-900 text-white p-8 md:p-12 rounded-t-[3rem] flex flex-wrap justify-between items-center gap-6">
+              <div>
+                <h2 className="text-3xl font-black italic uppercase tracking-tighter">CANLI YÖNETİM PANELİ</h2>
+                <p className="text-[10px] text-amber-500 font-bold uppercase tracking-[0.4em] mt-2">SB ÇAĞDAŞ MOBİLYA CONTROL v2.0</p>
+              </div>
+              <div className="flex gap-4">
+                <button 
+                   onClick={() => setIsAdmin(false)}
+                   className="bg-white/10 px-8 py-4 rounded-2xl font-bold text-[10px] uppercase hover:bg-white/20 transition"
+                >
+                  Paneli Kapat
+                </button>
+                <button 
+                  onClick={() => saveToFirebase(siteData).then(() => alert("✅ Tüm değişiklikler siteye yansıdı!"))}
+                  className="bg-emerald-500 px-12 py-4 rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-emerald-600 transition active:scale-95"
+                >
+                  DEĞİŞİKLİKLERİ YAYINLA
+                </button>
+              </div>
+            </div>
+            
+            <div className="bg-white p-8 md:p-16 rounded-b-[3rem] shadow-2xl space-y-20">
+              
+              <div className="space-y-8">
+                <h4 className="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b-2 border-amber-50 pb-4 tracking-tighter text-xl">
+                  <i className="fas fa-desktop"></i> ANA EKRAN VE GENEL AYARLAR
+                </h4>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Ana Başlık (Büyük Yazı)</label>
+                    <input 
+                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition font-bold"
+                      value={siteData.hero.title}
+                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, title: e.target.value.toUpperCase()}})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Alt Yazı (Açıklama)</label>
+                    <input 
+                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition"
+                      value={siteData.hero.subtitle}
+                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, subtitle: e.target.value}})}
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Arkaplan Görsel Linki</label>
+                    <input 
+                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition italic"
+                      value={siteData.hero.bgImage}
+                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, bgImage: e.target.value}})}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-12">
+                <div className="flex justify-between items-end border-b-2 border-amber-50 pb-4">
+                  <h4 className="font-black text-amber-900 uppercase italic flex items-center gap-3 tracking-tighter text-xl">
+                    <i className="fas fa-images"></i> KOLEKSİYONLAR VE GALERİLER
+                  </h4>
+                  <button 
+                    onClick={() => {
+                      const newCat = { id: Date.now(), title: "YENİ KOLEKSİYON", images: [] };
+                      setSiteData({...siteData, categories: [...siteData.categories, newCat]});
+                    }}
+                    className="bg-stone-900 text-white px-6 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-amber-700 transition"
+                  >
+                    + Koleksiyon Ekle
+                  </button>
+                </div>
+
+                <div className="space-y-8">
+                  {siteData.categories.map((cat, idx) => (
+                    <div key={cat.id} className="p-8 bg-stone-50 rounded-[2rem] border-2 border-stone-200">
+                      <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
+                        <input 
+                          value={cat.title} 
+                          onChange={(e) => {
+                            const newCats = [...siteData.categories];
+                            newCats[idx].title = e.target.value.toUpperCase();
+                            setSiteData({...siteData, categories: newCats});
+                          }}
+                          className="text-2xl font-black bg-transparent border-b-2 border-amber-600 outline-none px-2 uppercase italic"
+                        />
+                        <button 
+                          onClick={() => {
+                            if(window.confirm("Bu koleksiyonu silmek istediğine emin misin?")) {
+                              const newCats = siteData.categories.filter((_, i) => i !== idx);
+                              setSiteData({...siteData, categories: newCats});
+                            }
+                          }}
+                          className="text-red-500 hover:text-red-700 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2"
+                        >
+                          <i className="fas fa-trash"></i> Koleksiyonu Sil
+                        </button>
+                      </div>
+
+                      <div className="space-y-6">
+                        <div className="flex gap-4">
+                          <input 
+                            placeholder="Yeni Fotoğraf URL'si yapıştır..."
+                            id={`url-input-${idx}`}
+                            className="flex-1 p-4 bg-white rounded-2xl shadow-inner border border-stone-200 outline-none focus:ring-2 ring-amber-600"
+                          />
+                          <button 
+                            onClick={() => {
+                              const input = document.getElementById(`url-input-${idx}`);
+                              const url = input.value.trim();
+                              if(url) {
+                                const newCats = [...siteData.categories];
+                                if(!newCats[idx].images) newCats[idx].images = [];
+                                newCats[idx].images.push(url);
+                                setSiteData({...siteData, categories: newCats});
+                                input.value = "";
+                              }
+                            }}
+                            className="bg-amber-600 text-white px-8 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-amber-700 transition"
+                          >
+                            Ekle
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                          {cat.images?.map((img, pIdx) => (
+                            <div key={pIdx} className="relative aspect-square group">
+                              <img src={img} alt="" className="w-full h-full object-cover rounded-xl border border-stone-200" />
+                              <button 
+                                onClick={() => {
+                                  const newCats = [...siteData.categories];
+                                  newCats[idx].images = newCats[idx].images.filter((_, i) => i !== pIdx);
+                                  setSiteData({...siteData, categories: newCats});
+                                }}
+                                className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center shadow-lg hover:scale-110 transition"
+                              >
+                                <i className="fas fa-times"></i>
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        )}
+      </section>
+      
+      {/* GLOBAL FONTAWESOME */}
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    </div>
+  );
 }
-
-// Start the app
-init();
-</script>
-</body>
-</html>
