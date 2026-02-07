@@ -2,192 +2,252 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SB Mobilya | CMS Galeri</title>
-
+<title>SB Mobilya – Full CMS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
-body { font-family: system-ui; background:#fafaf9 }
-.modal {display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:50}
+body{font-family:system-ui;background:#fafaf9}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50}
 .modal.active{display:flex}
 </style>
 </head>
 <body>
 
 <!-- DUYURU -->
-<div id="announcementBar" class="hidden bg-amber-600 text-white text-center py-2 font-bold"></div>
+<div id="announcement" class="hidden bg-amber-600 text-white text-center py-2 font-bold"></div>
 
 <!-- NAV -->
-<nav class="flex justify-between items-center p-6 bg-white shadow sticky top-0 z-40">
-  <b>SB MOBİLYA</b>
-  <a href="#admin" class="text-gray-400"><i class="fa fa-cog"></i></a>
+<nav class="flex justify-between p-4 bg-white shadow sticky top-0 z-40">
+<b>SB MOBİLYA</b>
+<button onclick="openAdmin()">⚙️</button>
 </nav>
 
 <!-- HERO -->
-<header class="relative h-[70vh] flex items-center justify-center text-white">
-  <div id="heroBg" class="absolute inset-0 bg-cover bg-center"></div>
-  <div class="absolute inset-0 bg-black/60"></div>
-  <div class="relative text-center px-6">
-    <h1 id="heroTitle" class="text-5xl font-black mb-4"></h1>
-    <p id="heroSubtitle" class="text-xl opacity-80"></p>
-  </div>
-</header>
-
-<!-- KATEGORİLER -->
-<section class="max-w-7xl mx-auto py-20 px-6">
-  <div id="categoryGrid" class="grid md:grid-cols-3 gap-8"></div>
+<section class="relative h-[70vh] flex items-center justify-center text-white">
+<div id="heroBg" class="absolute inset-0 bg-cover bg-center"></div>
+<div class="absolute inset-0 bg-black/60"></div>
+<div class="relative text-center px-6">
+<h1 id="heroTitle" class="text-5xl font-black"></h1>
+<p id="heroSubtitle" class="text-xl mt-4"></p>
+</div>
 </section>
 
-<!-- GALERİ MODAL -->
+<!-- KATEGORİLER -->
+<section class="max-w-7xl mx-auto py-16 px-6">
+<div id="categories" class="grid md:grid-cols-3 gap-6"></div>
+</section>
+
+<!-- GALERİ -->
 <div id="galleryModal" class="modal items-center justify-center">
-  <div class="bg-white max-w-6xl w-full p-6 rounded-xl">
-    <div class="flex justify-between mb-4">
-      <h2 id="modalTitle" class="font-black text-xl"></h2>
-      <button onclick="closeGallery()" class="text-2xl">&times;</button>
-    </div>
-    <div id="galleryContent" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-  </div>
+<div class="bg-white p-6 rounded-xl max-w-5xl w-full">
+<div class="flex justify-between mb-4">
+<h2 id="galleryTitle" class="font-black"></h2>
+<button onclick="closeGallery()">✖</button>
+</div>
+<div id="galleryImages" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+</div>
 </div>
 
 <!-- FOOTER -->
-<footer class="bg-stone-900 text-white p-10 text-center space-y-3">
-  <div id="socials" class="flex justify-center gap-6 text-xl"></div>
-  <p id="contactInfo" class="text-sm opacity-70"></p>
+<footer class="bg-stone-900 text-white p-8 text-center space-y-2">
+<p id="contact"></p>
 </footer>
 
 <!-- ADMIN -->
-<section id="admin" class="bg-stone-100 py-20 px-6">
-<div class="max-w-6xl mx-auto">
+<div id="adminModal" class="modal items-center justify-center">
+<div class="bg-white p-6 rounded-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
 
-<div id="login">
-  <input id="pass" type="password" placeholder="Admin Şifre" class="p-3 rounded w-full mb-4">
-  <button onclick="login()" class="bg-black text-white px-6 py-3 rounded w-full">GİRİŞ</button>
+<div id="loginBox">
+<h2 class="font-black mb-4">Admin Giriş</h2>
+<input id="pass" type="password" class="border p-2 w-full mb-3" placeholder="Şifre">
+<button onclick="login()" class="bg-black text-white w-full py-2 rounded">GİRİŞ</button>
 </div>
 
-<div id="panel" class="hidden space-y-12">
+<div id="adminPanel" class="hidden space-y-8">
+
+<!-- DİL -->
+<select onchange="lang=this.value;render()" class="border p-2">
+<option value="tr">TR</option>
+<option value="en">EN</option>
+<option value="de">DE</option>
+</select>
 
 <!-- HERO -->
 <div>
-<h3 class="font-black mb-2">HERO</h3>
-<input class="border p-2 w-full mb-2" placeholder="Başlık" oninput="data.hero.title=this.value">
-<input class="border p-2 w-full mb-2" placeholder="Alt başlık" oninput="data.hero.subtitle=this.value">
+<h3 class="font-black">HERO</h3>
+<input class="border p-2 w-full mb-2" placeholder="Başlık" oninput="data.hero.title[lang]=this.value">
+<input class="border p-2 w-full mb-2" placeholder="Alt Başlık" oninput="data.hero.subtitle[lang]=this.value">
 <input class="border p-2 w-full" placeholder="Hero Foto URL" oninput="data.hero.bg=this.value">
 </div>
 
 <!-- DUYURU -->
 <div>
-<h3 class="font-black mb-2">DUYURU</h3>
-<input class="border p-2 w-full" placeholder="Duyuru Metni" oninput="data.announcement.text=this.value">
-<label class="block mt-2">
-<input type="checkbox" onchange="data.announcement.active=this.checked"> Aktif
-</label>
-</div>
-
-<!-- SOSYAL -->
-<div>
-<h3 class="font-black mb-2">SOSYAL & İLETİŞİM</h3>
-<input class="border p-2 w-full mb-2" placeholder="Instagram" oninput="data.socials.instagram=this.value">
-<input class="border p-2 w-full mb-2" placeholder="Facebook" oninput="data.socials.facebook=this.value">
-<input class="border p-2 w-full mb-2" placeholder="Pinterest" oninput="data.socials.pinterest=this.value">
-<input class="border p-2 w-full mb-2" placeholder="E-posta" oninput="data.socials.email=this.value">
-<input class="border p-2 w-full" placeholder="Konum" oninput="data.socials.location=this.value">
+<h3 class="font-black">DUYURU</h3>
+<input class="border p-2 w-full mb-2" placeholder="Metin" oninput="data.announcement.text=this.value">
+<label><input type="checkbox" onchange="data.announcement.active=this.checked"> Aktif</label>
 </div>
 
 <!-- KATEGORİ -->
 <div>
-<div class="flex justify-between mb-2">
-<h3 class="font-black">KATEGORİLER</h3>
-<button onclick="addCategory()" class="bg-black text-white px-4 py-1 rounded">+ EKLE</button>
-</div>
-<div id="adminCats"></div>
+<h3 class="font-black mb-2">KATEGORİLER</h3>
+<button onclick="addCategory()" class="bg-black text-white px-4 py-1 rounded mb-3">+ EKLE</button>
+<div id="adminCategories"></div>
 </div>
 
-<button onclick="save()" class="bg-emerald-600 text-white px-8 py-4 rounded w-full font-black">
+<!-- AI -->
+<div>
+<h3 class="font-black">🤖 Yapay Zeka (Sadece Mobilya)</h3>
+<textarea id="aiQuestion" class="border p-2 w-full mb-2"
+placeholder="Mobilya / dekorasyon hakkında sor..."></textarea>
+<button onclick="askAI()" class="bg-purple-600 text-white px-4 py-2 rounded">
+AI'ye Sor
+</button>
+<p id="aiText" class="text-sm mt-2"></p>
+</div>
+
+<!-- İSTATİSTİK -->
+<div>
+<h3 class="font-black">📊 İstatistik</h3>
+<canvas id="chart"></canvas>
+</div>
+
+<button onclick="save()" class="bg-emerald-600 text-white w-full py-3 rounded font-black">
 KAYDET
 </button>
 
 </div>
 </div>
-</section>
+</div>
 
 <script>
+let lang="tr";
+
+const allowedKeywords=[
+"mobilya","koltuk","masa","sandalye","dolap","mutfak","banyo",
+"dekorasyon","iç mekan","tasarım","ahşap","mdf","lake",
+"gardırop","yatak","ofis","tezgah","tv","ünite"
+];
+
 let data={
- hero:{title:"SİZ HAYAL EDİN",subtitle:"Biz tasarlayalım",bg:"https://images.unsplash.com/photo-1618221195710"},
- announcement:{text:"Yeni projeler yayında!",active:true},
- socials:{instagram:"",facebook:"",pinterest:"",email:"",location:""},
- categories:[{title:"MUTFAKLAR",gallery:[]}]
+hero:{
+ title:{tr:"SİZ HAYAL EDİN",en:"YOU IMAGINE",de:"SIE TRÄUMEN"},
+ subtitle:{tr:"Biz tasarlayalım",en:"We design",de:"Wir entwerfen"},
+ bg:"https://images.unsplash.com/photo-1618221195710"
+},
+announcement:{text:"Yeni projeler yayında!",active:true},
+contact:"info@sbmobilya.com",
+categories:[
+ {title:{tr:"Mutfak",en:"Kitchen",de:"Küche"},gallery:[]}
+],
+stats:{visits:0,ai:0}
 };
 
 function render(){
- heroTitle.innerText=data.hero.title;
- heroSubtitle.innerText=data.hero.subtitle;
- heroBg.style.backgroundImage=`url('${data.hero.bg}')`;
+data.stats.visits++;
+heroTitle.innerText=data.hero.title[lang];
+heroSubtitle.innerText=data.hero.subtitle[lang];
+heroBg.style.backgroundImage=`url('${data.hero.bg}')`;
 
- announcementBar.classList.toggle("hidden",!data.announcement.active);
- announcementBar.innerText=data.announcement.text;
+announcement.classList.toggle("hidden",!data.announcement.active);
+announcement.innerText=data.announcement.text;
 
- socials.innerHTML="";
- if(data.socials.instagram) socials.innerHTML+=`<a href="${data.socials.instagram}"><i class="fab fa-instagram"></i></a>`;
- if(data.socials.facebook) socials.innerHTML+=`<a href="${data.socials.facebook}"><i class="fab fa-facebook"></i></a>`;
- if(data.socials.pinterest) socials.innerHTML+=`<a href="${data.socials.pinterest}"><i class="fab fa-pinterest"></i></a>`;
+categories.innerHTML=data.categories.map((c,i)=>`
+<div class="bg-white p-4 rounded shadow">
+<h3 class="font-black mb-2">${c.title[lang]}</h3>
+<button onclick="openGallery(${i})"
+class="bg-amber-600 text-white px-3 py-1 rounded">
+Galeri (${c.gallery.length})
+</button>
+</div>`).join("");
 
- contactInfo.innerText=`${data.socials.email} • ${data.socials.location}`;
-
- categoryGrid.innerHTML=data.categories.map((c,i)=>`
- <div class="bg-white p-6 rounded-xl shadow">
-   <h3 class="font-black mb-2">${c.title}</h3>
-   <button onclick="openGallery(${i})" class="bg-amber-600 text-white px-4 py-2 rounded">
-   Galeri (${c.gallery.length})
-   </button>
- </div>`).join("");
-
- renderAdmin();
+contact.innerText=data.contact;
+renderAdmin();
+renderChart();
 }
 
 function openGallery(i){
- modalTitle.innerText=data.categories[i].title;
- galleryContent.innerHTML=data.categories[i].gallery.map(g=>`
- <img src="${g}" class="aspect-square object-cover rounded">`).join("");
- galleryModal.classList.add("active");
+galleryTitle.innerText=data.categories[i].title[lang];
+galleryImages.innerHTML=data.categories[i].gallery
+.map(g=>`<img src="${g}" class="aspect-square object-cover rounded">`).join("");
+galleryModal.classList.add("active");
 }
 function closeGallery(){galleryModal.classList.remove("active")}
 
+function openAdmin(){adminModal.classList.add("active")}
 function login(){
- if(pass.value==="3421"){
-  login.style.display="none";
-  panel.classList.remove("hidden");
- }
+if(pass.value==="342134"){
+loginBox.classList.add("hidden");
+adminPanel.classList.remove("hidden");
+}else alert("Hatalı şifre");
 }
 
 function addCategory(){
- data.categories.push({title:"Yeni Kategori",gallery:[]});
- render();
+data.categories.push({
+title:{tr:"Yeni",en:"New",de:"Neu"},
+gallery:[]
+});
+render();
 }
 
 function renderAdmin(){
- adminCats.innerHTML=data.categories.map((c,i)=>`
- <div class="border p-4 mb-4 rounded">
- <input class="border p-2 w-full mb-2" value="${c.title}" oninput="data.categories[${i}].title=this.value">
- <input type="file" multiple onchange="upload(${i},this)">
- </div>`).join("");
+adminCategories.innerHTML=data.categories.map((c,i)=>`
+<div class="border p-3 mb-3 rounded">
+<input class="border p-1 w-full mb-1"
+value="${c.title[lang]}"
+oninput="data.categories[${i}].title[lang]=this.value">
+<input type="file" multiple onchange="upload(${i},this)">
+</div>`).join("");
 }
 
 function upload(i,input){
- [...input.files].forEach(f=>{
-  const r=new FileReader();
-  r.onload=e=>{data.categories[i].gallery.push(e.target.result);render();}
-  r.readAsDataURL(f);
- })
+[...input.files].forEach(f=>{
+const r=new FileReader();
+r.onload=e=>{data.categories[i].gallery.push(e.target.result);render();}
+r.readAsDataURL(f);
+});
+}
+
+function isFurnitureQuestion(t){
+t=t.toLowerCase();
+return allowedKeywords.some(k=>t.includes(k));
+}
+
+function askAI(){
+const q=aiQuestion.value.trim();
+if(!q){aiText.innerText="Soru yaz.";return;}
+
+if(!isFurnitureQuestion(q)){
+aiText.innerText=
+"❌ Bu yapay zeka yalnızca mobilya ve dekorasyon ile ilgili sorulara cevap verir.";
+return;
+}
+
+data.stats.ai++;
+aiText.innerText=
+"Bu konuda önerim şudur:\n\n" +
+"Mobilya seçiminde kullanım alanı, ölçü, malzeme kalitesi ve uzun ömürlülük temel kriterlerdir. " +
+"İhtiyaca özel üretim mobilyalar hem alan verimliliği hem de estetik açıdan en iyi sonucu verir.";
+renderChart();
+}
+
+function renderChart(){
+new Chart(document.getElementById("chart"),{
+type:"bar",
+data:{
+labels:["Ziyaret","AI Kullanım"],
+datasets:[{data:[data.stats.visits,data.stats.ai]}]
+},
+options:{responsive:true}
+});
 }
 
 function save(){
- localStorage.setItem("cms",JSON.stringify(data));
- alert("Kaydedildi");
+localStorage.setItem("sb_full_cms",JSON.stringify(data));
+alert("Kaydedildi");
 }
 
-const saved=localStorage.getItem("cms");
+const saved=localStorage.getItem("sb_full_cms");
 if(saved) data=JSON.parse(saved);
 render();
 </script>
