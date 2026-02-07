@@ -2,71 +2,83 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>SB Mobilya – Full CMS</title>
+<title>SB Mobilya</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
-body{font-family:system-ui;background:#fafaf9}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:50}
+body{
+  font-family: system-ui;
+  background:#f5f5f4;
+  color:#1c1c1c;
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  z-index:50;
+}
 .modal.active{display:flex}
 </style>
 </head>
 <body>
 
 <!-- DUYURU -->
-<div id="announcement" class="hidden bg-amber-600 text-white text-center py-2 font-bold"></div>
+<div id="announcement" class="hidden bg-[#c6a15b] text-white text-center py-2 font-semibold"></div>
 
 <!-- NAV -->
-<nav class="flex justify-between p-4 bg-white shadow sticky top-0 z-40">
-<b>SB MOBİLYA</b>
-<button onclick="openAdmin()">⚙️</button>
+<nav class="flex justify-between items-center p-5 bg-[#1c1c1c] text-white sticky top-0 z-40">
+<b class="tracking-widest text-sm">SB MOBİLYA</b>
+<button onclick="openAdmin()" class="opacity-70 hover:opacity-100">⚙️</button>
 </nav>
 
 <!-- HERO -->
-<section class="relative h-[70vh] flex items-center justify-center text-white">
+<section class="relative h-[75vh] flex items-center justify-center text-white">
 <div id="heroBg" class="absolute inset-0 bg-cover bg-center"></div>
-<div class="absolute inset-0 bg-black/60"></div>
-<div class="relative text-center px-6">
-<h1 id="heroTitle" class="text-5xl font-black"></h1>
-<p id="heroSubtitle" class="text-xl mt-4"></p>
+<div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black/90"></div>
+<div class="relative text-center px-6 max-w-4xl">
+<h1 id="heroTitle" class="text-5xl md:text-6xl font-extrabold tracking-tight"></h1>
+<p id="heroSubtitle" class="text-xl mt-6 text-stone-300"></p>
 </div>
 </section>
 
 <!-- KATEGORİLER -->
-<section class="max-w-7xl mx-auto py-16 px-6">
-<div id="categories" class="grid md:grid-cols-3 gap-6"></div>
+<section class="max-w-7xl mx-auto py-20 px-6">
+<div id="categories" class="grid md:grid-cols-3 gap-8"></div>
 </section>
 
 <!-- GALERİ -->
 <div id="galleryModal" class="modal items-center justify-center">
-<div class="bg-white p-6 rounded-xl max-w-5xl w-full">
-<div class="flex justify-between mb-4">
-<h2 id="galleryTitle" class="font-black"></h2>
-<button onclick="closeGallery()">✖</button>
+<div class="bg-white p-8 rounded-2xl max-w-6xl w-full">
+<div class="flex justify-between mb-6">
+<h2 id="galleryTitle" class="font-bold text-xl"></h2>
+<button onclick="closeGallery()" class="text-xl">✕</button>
 </div>
 <div id="galleryImages" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 </div>
 </div>
 
 <!-- FOOTER -->
-<footer class="bg-stone-900 text-white p-8 text-center space-y-2">
+<footer class="bg-[#1c1c1c] text-stone-300 p-10 text-center">
 <p id="contact"></p>
 </footer>
 
 <!-- ADMIN -->
 <div id="adminModal" class="modal items-center justify-center">
-<div class="bg-white p-6 rounded-xl max-w-4xl w-full overflow-y-auto max-h-[90vh]">
+<div class="bg-white p-8 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
 
 <div id="loginBox">
-<h2 class="font-black mb-4">Admin Giriş</h2>
-<input id="pass" type="password" class="border p-2 w-full mb-3" placeholder="Şifre">
-<button onclick="login()" class="bg-black text-white w-full py-2 rounded">GİRİŞ</button>
+<h2 class="font-bold mb-4">Admin Giriş</h2>
+<input id="pass" type="password" class="border p-3 w-full mb-4" placeholder="Şifre">
+<button onclick="login()" class="bg-[#1c1c1c] text-white w-full py-3 rounded">
+GİRİŞ
+</button>
 </div>
 
-<div id="adminPanel" class="hidden space-y-8">
+<div id="adminPanel" class="hidden space-y-10">
 
-<!-- DİL -->
 <select onchange="lang=this.value;render()" class="border p-2">
 <option value="tr">TR</option>
 <option value="en">EN</option>
@@ -75,44 +87,53 @@ body{font-family:system-ui;background:#fafaf9}
 
 <!-- HERO -->
 <div>
-<h3 class="font-black">HERO</h3>
-<input class="border p-2 w-full mb-2" placeholder="Başlık" oninput="data.hero.title[lang]=this.value">
-<input class="border p-2 w-full mb-2" placeholder="Alt Başlık" oninput="data.hero.subtitle[lang]=this.value">
-<input class="border p-2 w-full" placeholder="Hero Foto URL" oninput="data.hero.bg=this.value">
+<h3 class="font-bold mb-2">Hero</h3>
+<input class="border p-2 w-full mb-2" placeholder="Başlık"
+oninput="data.hero.title[lang]=this.value">
+<input class="border p-2 w-full mb-2" placeholder="Alt başlık"
+oninput="data.hero.subtitle[lang]=this.value">
+<input class="border p-2 w-full" placeholder="Foto URL"
+oninput="data.hero.bg=this.value">
 </div>
 
 <!-- DUYURU -->
 <div>
-<h3 class="font-black">DUYURU</h3>
-<input class="border p-2 w-full mb-2" placeholder="Metin" oninput="data.announcement.text=this.value">
-<label><input type="checkbox" onchange="data.announcement.active=this.checked"> Aktif</label>
+<h3 class="font-bold mb-2">Duyuru</h3>
+<input class="border p-2 w-full mb-2"
+oninput="data.announcement.text=this.value">
+<label><input type="checkbox"
+onchange="data.announcement.active=this.checked"> Aktif</label>
 </div>
 
 <!-- KATEGORİ -->
 <div>
-<h3 class="font-black mb-2">KATEGORİLER</h3>
-<button onclick="addCategory()" class="bg-black text-white px-4 py-1 rounded mb-3">+ EKLE</button>
+<h3 class="font-bold mb-3">Kategoriler</h3>
+<button onclick="addCategory()"
+class="bg-[#1c1c1c] text-white px-4 py-2 rounded mb-4">
++ Kategori
+</button>
 <div id="adminCategories"></div>
 </div>
 
 <!-- AI -->
 <div>
-<h3 class="font-black">🤖 Yapay Zeka (Sadece Mobilya)</h3>
-<textarea id="aiQuestion" class="border p-2 w-full mb-2"
-placeholder="Mobilya / dekorasyon hakkında sor..."></textarea>
-<button onclick="askAI()" class="bg-purple-600 text-white px-4 py-2 rounded">
-AI'ye Sor
+<h3 class="font-bold mb-2">AI (Sadece Mobilya)</h3>
+<textarea id="aiQuestion" class="border p-2 w-full mb-2"></textarea>
+<button onclick="askAI()"
+class="bg-[#c6a15b] hover:bg-[#b38b45] text-white px-4 py-2 rounded">
+Sor
 </button>
-<p id="aiText" class="text-sm mt-2"></p>
+<p id="aiText" class="text-sm mt-3"></p>
 </div>
 
 <!-- İSTATİSTİK -->
 <div>
-<h3 class="font-black">📊 İstatistik</h3>
+<h3 class="font-bold mb-2">İstatistik</h3>
 <canvas id="chart"></canvas>
 </div>
 
-<button onclick="save()" class="bg-emerald-600 text-white w-full py-3 rounded font-black">
+<button onclick="save()"
+class="bg-[#1c1c1c] text-white w-full py-4 rounded font-bold">
 KAYDET
 </button>
 
@@ -122,6 +143,7 @@ KAYDET
 
 <script>
 let lang="tr";
+let statsChart=null;
 
 const allowedKeywords=[
 "mobilya","koltuk","masa","sandalye","dolap","mutfak","banyo",
@@ -145,6 +167,7 @@ stats:{visits:0,ai:0}
 
 function render(){
 data.stats.visits++;
+
 heroTitle.innerText=data.hero.title[lang];
 heroSubtitle.innerText=data.hero.subtitle[lang];
 heroBg.style.backgroundImage=`url('${data.hero.bg}')`;
@@ -153,10 +176,10 @@ announcement.classList.toggle("hidden",!data.announcement.active);
 announcement.innerText=data.announcement.text;
 
 categories.innerHTML=data.categories.map((c,i)=>`
-<div class="bg-white p-4 rounded shadow">
-<h3 class="font-black mb-2">${c.title[lang]}</h3>
+<div class="bg-white p-6 rounded-2xl shadow-lg hover:-translate-y-1 transition">
+<h3 class="font-bold mb-3">${c.title[lang]}</h3>
 <button onclick="openGallery(${i})"
-class="bg-amber-600 text-white px-3 py-1 rounded">
+class="bg-[#c6a15b] hover:bg-[#b38b45] text-white px-4 py-2 rounded">
 Galeri (${c.gallery.length})
 </button>
 </div>`).join("");
@@ -169,7 +192,7 @@ renderChart();
 function openGallery(i){
 galleryTitle.innerText=data.categories[i].title[lang];
 galleryImages.innerHTML=data.categories[i].gallery
-.map(g=>`<img src="${g}" class="aspect-square object-cover rounded">`).join("");
+.map(g=>`<img src="${g}" class="aspect-square object-cover rounded-xl">`).join("");
 galleryModal.classList.add("active");
 }
 function closeGallery(){galleryModal.classList.remove("active")}
@@ -192,8 +215,8 @@ render();
 
 function renderAdmin(){
 adminCategories.innerHTML=data.categories.map((c,i)=>`
-<div class="border p-3 mb-3 rounded">
-<input class="border p-1 w-full mb-1"
+<div class="border p-4 mb-4 rounded-xl">
+<input class="border p-2 w-full mb-2"
 value="${c.title[lang]}"
 oninput="data.categories[${i}].title[lang]=this.value">
 <input type="file" multiple onchange="upload(${i},this)">
@@ -216,38 +239,35 @@ return allowedKeywords.some(k=>t.includes(k));
 function askAI(){
 const q=aiQuestion.value.trim();
 if(!q){aiText.innerText="Soru yaz.";return;}
-
 if(!isFurnitureQuestion(q)){
-aiText.innerText=
-"❌ Bu yapay zeka yalnızca mobilya ve dekorasyon ile ilgili sorulara cevap verir.";
+aiText.innerText="Bu AI yalnızca mobilya ve dekorasyon sorularına cevap verir.";
 return;
 }
-
 data.stats.ai++;
 aiText.innerText=
-"Bu konuda önerim şudur:\n\n" +
-"Mobilya seçiminde kullanım alanı, ölçü, malzeme kalitesi ve uzun ömürlülük temel kriterlerdir. " +
-"İhtiyaca özel üretim mobilyalar hem alan verimliliği hem de estetik açıdan en iyi sonucu verir.";
+"Mobilya seçiminde ölçü, malzeme kalitesi ve kullanım amacına uygunluk en önemli kriterlerdir. " +
+"İhtiyaca özel üretim her zaman daha estetik ve verimli sonuç verir.";
 renderChart();
 }
 
 function renderChart(){
-new Chart(document.getElementById("chart"),{
+const ctx=document.getElementById("chart");
+if(statsChart) statsChart.destroy();
+statsChart=new Chart(ctx,{
 type:"bar",
 data:{
 labels:["Ziyaret","AI Kullanım"],
 datasets:[{data:[data.stats.visits,data.stats.ai]}]
-},
-options:{responsive:true}
+}
 });
 }
 
 function save(){
-localStorage.setItem("sb_full_cms",JSON.stringify(data));
+localStorage.setItem("sb_cms_premium",JSON.stringify(data));
 alert("Kaydedildi");
 }
 
-const saved=localStorage.getItem("sb_full_cms");
+const saved=localStorage.getItem("sb_cms_premium");
 if(saved) data=JSON.parse(saved);
 render();
 </script>
