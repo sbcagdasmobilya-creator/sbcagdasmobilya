@@ -1,405 +1,196 @@
-import React, { useState, useEffect } from 'react';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SB Mobilya | CMS Galeri</title>
 
-// Firebase yapılandırması (environment tarafından sağlanır)
-const firebaseConfig = JSON.parse(window.__firebase_config);
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const appId = typeof window.__app_id !== 'undefined' ? window.__app_id : 'sb-mobilya-full-control';
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-export default function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [passInput, setPassInput] = useState("");
-  const [activeGallery, setActiveGallery] = useState(null);
-  
-  // Varsayılan Site Verileri
-  const [siteData, setSiteData] = useState({
-    hero: {
-      title: "SİZ HAYAL EDİN, BİZ TASARLAYALIM",
-      subtitle: "Yaşam alanlarınıza değer katan butik mobilya ve dekorasyon çözümleri.",
-      bgImage: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000"
-    },
-    contact: {
-      phone: "0541 224 52 56",
-      instagram: "sbcagdasmobilya",
-      address: "Yakuplu Mah. Beylikdüzü / İSTANBUL"
-    },
-    categories: [
-      { id: 1, title: "MUTFAKLAR", images: [] },
-      { id: 2, title: "BANYOLAR", images: [] },
-      { id: 3, title: "OFİSLER", images: [] }
-    ]
-  });
+<style>
+body { font-family: system-ui; background:#fafaf9 }
+.modal {display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:50}
+.modal.active{display:flex}
+</style>
+</head>
+<body>
 
-  // Hata veren segment sayısını düzeltmek için referansı güncelliyoruz
-  // RULE 1: /artifacts/{appId}/public/data/{collectionName}/{documentId}
-  // artifacts(1) / appId(2) / public(3) / data(4) / siteContent(5) / master(6) -> Çift sayı (6 segment)
-  const getDocRef = () => doc(db, 'artifacts', appId, 'public', 'data', 'siteContent', 'master');
+<!-- DUYURU -->
+<div id="announcementBar" class="hidden bg-amber-600 text-white text-center py-2 font-bold"></div>
 
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof window.__initial_auth_token !== 'undefined' && window.__initial_auth_token) {
-          await signInWithCustomToken(auth, window.__initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (err) {
-        console.error("Auth error:", err);
-      }
-    };
-    initAuth();
+<!-- NAV -->
+<nav class="flex justify-between items-center p-6 bg-white shadow sticky top-0 z-40">
+  <b>SB MOBİLYA</b>
+  <a href="#admin" class="text-gray-400"><i class="fa fa-cog"></i></a>
+</nav>
 
-    const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        const docRef = getDocRef();
-        const unsubData = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            setSiteData(docSnap.data());
-          } else {
-            // Eğer belge yoksa oluştur
-            setDoc(docRef, siteData).catch(e => console.error("Init save error:", e));
-          }
-          setLoading(false);
-        }, (err) => {
-          console.error("Firestore error:", err);
-          setLoading(false);
-        });
-        return () => unsubData();
-      }
-    });
+<!-- HERO -->
+<header class="relative h-[70vh] flex items-center justify-center text-white">
+  <div id="heroBg" class="absolute inset-0 bg-cover bg-center"></div>
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="relative text-center px-6">
+    <h1 id="heroTitle" class="text-5xl font-black mb-4"></h1>
+    <p id="heroSubtitle" class="text-xl opacity-80"></p>
+  </div>
+</header>
 
-    return () => unsubAuth();
-  }, []);
+<!-- KATEGORİLER -->
+<section class="max-w-7xl mx-auto py-20 px-6">
+  <div id="categoryGrid" class="grid md:grid-cols-3 gap-8"></div>
+</section>
 
-  const saveToFirebase = async (newData) => {
-    if (!user) return;
-    try {
-      await setDoc(getDocRef(), newData);
-    } catch (err) {
-      console.error(err);
-      alert("Hata: Veri kaydedilemedi. Yetki sorunu olabilir.");
-    }
-  };
-
-  const handleAdminLogin = () => {
-    if (passInput === "3421") {
-      setIsAdmin(true);
-      setTimeout(() => {
-        document.getElementById('admin-panel')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      alert("Hatalı Şifre!");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-stone-50 text-amber-900">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-amber-900 mb-4 mr-4"></div>
-        <span className="font-bold tracking-widest uppercase text-sm">Sistem Yükleniyor...</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-[#fafaf9] text-stone-900 font-sans selection:bg-amber-200">
-      
-      {/* NAVBAR */}
-      <nav className="sticky top-0 z-[100] bg-white/80 backdrop-blur-md border-b border-stone-200 px-6 py-4 flex justify-between items-center">
-        <div className="flex flex-col">
-          <span className="text-2xl font-black text-stone-950 leading-none italic uppercase tracking-tighter">SB ÇAĞDAŞ</span>
-          <span className="text-[8px] font-bold text-amber-700 tracking-[0.4em] uppercase mt-1">Mobilya & Tasarım</span>
-        </div>
-        <div className="flex gap-6 items-center">
-          <a href="#koleksiyon" className="hidden md:block text-[10px] font-bold uppercase tracking-widest text-stone-500 hover:text-amber-700">Koleksiyon</a>
-          <button onClick={() => {
-            const adminSec = document.getElementById('admin-panel');
-            adminSec?.scrollIntoView({ behavior: 'smooth' });
-          }} className="text-stone-300 hover:text-red-600 transition text-sm"><i className="fas fa-cog"></i></button>
-        </div>
-      </nav>
-
-      {/* HERO SECTION */}
-      <header className="relative h-[75vh] flex items-center justify-center overflow-hidden bg-stone-900">
-        <div 
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105" 
-          style={{ backgroundImage: `url('${siteData.hero.bgImage}')` }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/80" />
-        
-        <div className="relative z-10 text-center text-white px-6 max-w-4xl">
-          <h1 className="text-4xl md:text-7xl font-black mb-6 italic uppercase tracking-tighter leading-none">
-            {siteData.hero.title}
-          </h1>
-          <p className="text-sm md:text-xl font-light opacity-80 mb-10 italic leading-relaxed">
-            {siteData.hero.subtitle}
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a href="#koleksiyon" className="bg-white text-stone-900 px-8 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-amber-600 hover:text-white transition shadow-xl">Koleksiyonu İncele</a>
-            <a href={`https://wa.me/90${siteData.contact.phone.replace(/\s/g, '')}`} target="_blank" rel="noreferrer" className="bg-emerald-600 text-white px-8 py-4 rounded-full font-bold uppercase text-[10px] tracking-widest hover:bg-emerald-700 transition shadow-xl">Teklif Al</a>
-          </div>
-        </div>
-      </header>
-
-      {/* CATEGORIES / GALLERY */}
-      <section id="koleksiyon" className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-5xl font-black italic uppercase text-stone-900 tracking-tighter">Neler Yapıyoruz?</h2>
-          <div className="w-20 h-1 bg-amber-600 mx-auto mt-4 rounded-full"></div>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-          {siteData.categories.map((cat, idx) => (
-            <div key={cat.id} className="group bg-white rounded-[2.5rem] overflow-hidden shadow-2xl border border-stone-100 hover:-translate-y-2 transition-all duration-500">
-              <div className="h-72 overflow-hidden relative">
-                {cat.images && cat.images.length > 0 ? (
-                  <img src={cat.images[0]} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={cat.title} />
-                ) : (
-                  <div className="w-full h-full bg-stone-100 flex items-center justify-center text-stone-300">
-                    <i className="fas fa-image text-5xl"></i>
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                   <button onClick={() => setActiveGallery(idx)} className="bg-white text-stone-900 p-4 rounded-full shadow-xl"><i className="fas fa-search-plus"></i></button>
-                </div>
-              </div>
-              <div className="p-8 text-center">
-                <h3 className="font-black italic uppercase text-xl text-stone-900 tracking-tight">{cat.title}</h3>
-                <p className="text-[10px] font-bold text-amber-600 uppercase tracking-widest mt-2">{cat.images?.length || 0} Tasarım</p>
-                <button 
-                  onClick={() => setActiveGallery(idx)}
-                  className="mt-6 w-full border-2 border-stone-900 text-stone-900 px-6 py-3 rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:bg-stone-900 hover:text-white transition"
-                >
-                  Galeriyi İncele
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* GALLERY MODAL */}
-      {activeGallery !== null && (
-        <div className="fixed inset-0 z-[200] bg-black/95 backdrop-blur-xl flex flex-col p-6 overflow-hidden">
-          <div className="flex justify-between items-center mb-8 max-w-7xl mx-auto w-full">
-            <h2 className="text-2xl md:text-4xl font-black text-white italic uppercase">{siteData.categories[activeGallery].title}</h2>
-            <button onClick={() => setActiveGallery(null)} className="bg-white/10 hover:bg-white/20 text-white w-12 h-12 rounded-full flex items-center justify-center transition">
-              <i className="fas fa-times text-xl"></i>
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto max-w-7xl mx-auto w-full grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pb-12">
-            {siteData.categories[activeGallery].images?.map((img, i) => (
-              <div key={i} className="aspect-square rounded-2xl overflow-hidden group">
-                <img src={img} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
-              </div>
-            ))}
-            {(!siteData.categories[activeGallery].images || siteData.categories[activeGallery].images.length === 0) && (
-              <p className="col-span-full text-center text-stone-500 py-20 italic">Bu galeride henüz fotoğraf yok.</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* FOOTER */}
-      <footer className="bg-stone-950 text-white py-20 px-6 border-t border-white/5">
-        <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 text-center md:text-left">
-          <div className="flex flex-col">
-            <span className="text-3xl font-black italic uppercase text-amber-500 tracking-tighter">SB ÇAĞDAŞ</span>
-            <p className="mt-4 text-stone-500 text-sm leading-relaxed italic">Beylikdüzü'nde hayallerinizi gerçeğe dönüştüren butik mobilya atölyesi.</p>
-          </div>
-          <div className="space-y-4">
-             <h4 className="font-bold uppercase text-[10px] tracking-widest text-amber-600">İletişim</h4>
-             <p className="text-xl font-light italic">{siteData.contact.phone}</p>
-             <p className="text-sm text-stone-400">{siteData.contact.address}</p>
-          </div>
-          <div className="flex flex-col items-center md:items-end gap-4">
-             <a href={`https://instagram.com/${siteData.contact.instagram}`} target="_blank" rel="noreferrer" className="bg-white/5 p-4 rounded-2xl hover:bg-amber-600 transition border border-white/10">
-               <i className="fab fa-instagram text-2xl"></i>
-             </a>
-             <span className="text-[10px] font-bold text-stone-600 uppercase tracking-[0.4em]">İSTANBUL - 2026</span>
-          </div>
-        </div>
-      </footer>
-
-      {/* ADMIN PANEL */}
-      <section id="admin-panel" className="py-24 bg-stone-100 px-6">
-        {!isAdmin ? (
-          <div className="max-w-md mx-auto text-center bg-white p-10 rounded-[3rem] shadow-xl border border-stone-200">
-            <div className="w-16 h-16 bg-amber-50 text-amber-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-              <i className="fas fa-lock text-2xl"></i>
-            </div>
-            <h3 className="font-black uppercase tracking-widest text-xs mb-6 text-stone-500 italic">YÖNETİCİ GİRİŞİ</h3>
-            <input 
-              type="password" 
-              placeholder="Şifre" 
-              className="w-full p-4 rounded-2xl border-none shadow-inner bg-stone-50 mb-4 text-center outline-none focus:ring-2 ring-amber-600 transition"
-              value={passInput}
-              onChange={(e) => setPassInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleAdminLogin()}
-            />
-            <button onClick={handleAdminLogin} className="w-full bg-stone-900 text-white p-4 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-amber-700 transition active:scale-95 shadow-lg">Sistemi Aç</button>
-          </div>
-        ) : (
-          <div className="max-w-6xl mx-auto">
-            <div className="bg-stone-900 text-white p-8 md:p-12 rounded-t-[3rem] flex flex-wrap justify-between items-center gap-6">
-              <div>
-                <h2 className="text-3xl font-black italic uppercase tracking-tighter">CANLI YÖNETİM PANELİ</h2>
-                <p className="text-[10px] text-amber-500 font-bold uppercase tracking-[0.4em] mt-2">SB ÇAĞDAŞ MOBİLYA CONTROL v2.0</p>
-              </div>
-              <div className="flex gap-4">
-                <button 
-                   onClick={() => setIsAdmin(false)}
-                   className="bg-white/10 px-8 py-4 rounded-2xl font-bold text-[10px] uppercase hover:bg-white/20 transition"
-                >
-                  Paneli Kapat
-                </button>
-                <button 
-                  onClick={() => saveToFirebase(siteData).then(() => alert("✅ Tüm değişiklikler siteye yansıdı!"))}
-                  className="bg-emerald-500 px-12 py-4 rounded-2xl font-black text-xs uppercase shadow-xl hover:bg-emerald-600 transition active:scale-95"
-                >
-                  DEĞİŞİKLİKLERİ YAYINLA
-                </button>
-              </div>
-            </div>
-            
-            <div className="bg-white p-8 md:p-16 rounded-b-[3rem] shadow-2xl space-y-20">
-              
-              <div className="space-y-8">
-                <h4 className="font-black text-amber-900 uppercase italic flex items-center gap-3 border-b-2 border-amber-50 pb-4 tracking-tighter text-xl">
-                  <i className="fas fa-desktop"></i> ANA EKRAN VE GENEL AYARLAR
-                </h4>
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Ana Başlık (Büyük Yazı)</label>
-                    <input 
-                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition font-bold"
-                      value={siteData.hero.title}
-                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, title: e.target.value.toUpperCase()}})}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Alt Yazı (Açıklama)</label>
-                    <input 
-                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition"
-                      value={siteData.hero.subtitle}
-                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, subtitle: e.target.value}})}
-                    />
-                  </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <label className="text-[10px] font-bold text-stone-400 uppercase ml-1">Arkaplan Görsel Linki</label>
-                    <input 
-                      className="w-full p-4 bg-stone-50 rounded-2xl border-2 border-transparent focus:border-amber-600 outline-none transition italic"
-                      value={siteData.hero.bgImage}
-                      onChange={(e) => setSiteData({...siteData, hero: {...siteData.hero, bgImage: e.target.value}})}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-12">
-                <div className="flex justify-between items-end border-b-2 border-amber-50 pb-4">
-                  <h4 className="font-black text-amber-900 uppercase italic flex items-center gap-3 tracking-tighter text-xl">
-                    <i className="fas fa-images"></i> KOLEKSİYONLAR VE GALERİLER
-                  </h4>
-                  <button 
-                    onClick={() => {
-                      const newCat = { id: Date.now(), title: "YENİ KOLEKSİYON", images: [] };
-                      setSiteData({...siteData, categories: [...siteData.categories, newCat]});
-                    }}
-                    className="bg-stone-900 text-white px-6 py-2 rounded-xl text-[10px] font-bold uppercase hover:bg-amber-700 transition"
-                  >
-                    + Koleksiyon Ekle
-                  </button>
-                </div>
-
-                <div className="space-y-8">
-                  {siteData.categories.map((cat, idx) => (
-                    <div key={cat.id} className="p-8 bg-stone-50 rounded-[2rem] border-2 border-stone-200">
-                      <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-                        <input 
-                          value={cat.title} 
-                          onChange={(e) => {
-                            const newCats = [...siteData.categories];
-                            newCats[idx].title = e.target.value.toUpperCase();
-                            setSiteData({...siteData, categories: newCats});
-                          }}
-                          className="text-2xl font-black bg-transparent border-b-2 border-amber-600 outline-none px-2 uppercase italic"
-                        />
-                        <button 
-                          onClick={() => {
-                            if(window.confirm("Bu koleksiyonu silmek istediğine emin misin?")) {
-                              const newCats = siteData.categories.filter((_, i) => i !== idx);
-                              setSiteData({...siteData, categories: newCats});
-                            }
-                          }}
-                          className="text-red-500 hover:text-red-700 font-bold uppercase text-[10px] tracking-widest flex items-center gap-2"
-                        >
-                          <i className="fas fa-trash"></i> Koleksiyonu Sil
-                        </button>
-                      </div>
-
-                      <div className="space-y-6">
-                        <div className="flex gap-4">
-                          <input 
-                            placeholder="Yeni Fotoğraf URL'si yapıştır..."
-                            id={`url-input-${idx}`}
-                            className="flex-1 p-4 bg-white rounded-2xl shadow-inner border border-stone-200 outline-none focus:ring-2 ring-amber-600"
-                          />
-                          <button 
-                            onClick={() => {
-                              const input = document.getElementById(`url-input-${idx}`);
-                              const url = input.value.trim();
-                              if(url) {
-                                const newCats = [...siteData.categories];
-                                if(!newCats[idx].images) newCats[idx].images = [];
-                                newCats[idx].images.push(url);
-                                setSiteData({...siteData, categories: newCats});
-                                input.value = "";
-                              }
-                            }}
-                            className="bg-amber-600 text-white px-8 rounded-2xl font-bold uppercase text-[10px] tracking-widest hover:bg-amber-700 transition"
-                          >
-                            Ekle
-                          </button>
-                        </div>
-
-                        <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                          {cat.images?.map((img, pIdx) => (
-                            <div key={pIdx} className="relative aspect-square group">
-                              <img src={img} alt="" className="w-full h-full object-cover rounded-xl border border-stone-200" />
-                              <button 
-                                onClick={() => {
-                                  const newCats = [...siteData.categories];
-                                  newCats[idx].images = newCats[idx].images.filter((_, i) => i !== pIdx);
-                                  setSiteData({...siteData, categories: newCats});
-                                }}
-                                className="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full text-xs flex items-center justify-center shadow-lg hover:scale-110 transition"
-                              >
-                                <i className="fas fa-times"></i>
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          </div>
-        )}
-      </section>
-      
-      {/* GLOBAL FONTAWESOME */}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<!-- GALERİ MODAL -->
+<div id="galleryModal" class="modal items-center justify-center">
+  <div class="bg-white max-w-6xl w-full p-6 rounded-xl">
+    <div class="flex justify-between mb-4">
+      <h2 id="modalTitle" class="font-black text-xl"></h2>
+      <button onclick="closeGallery()" class="text-2xl">&times;</button>
     </div>
-  );
+    <div id="galleryContent" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="bg-stone-900 text-white p-10 text-center space-y-3">
+  <div id="socials" class="flex justify-center gap-6 text-xl"></div>
+  <p id="contactInfo" class="text-sm opacity-70"></p>
+</footer>
+
+<!-- ADMIN -->
+<section id="admin" class="bg-stone-100 py-20 px-6">
+<div class="max-w-6xl mx-auto">
+
+<div id="login">
+  <input id="pass" type="password" placeholder="Admin Şifre" class="p-3 rounded w-full mb-4">
+  <button onclick="login()" class="bg-black text-white px-6 py-3 rounded w-full">GİRİŞ</button>
+</div>
+
+<div id="panel" class="hidden space-y-12">
+
+<!-- HERO -->
+<div>
+<h3 class="font-black mb-2">HERO</h3>
+<input class="border p-2 w-full mb-2" placeholder="Başlık" oninput="data.hero.title=this.value">
+<input class="border p-2 w-full mb-2" placeholder="Alt başlık" oninput="data.hero.subtitle=this.value">
+<input class="border p-2 w-full" placeholder="Hero Foto URL" oninput="data.hero.bg=this.value">
+</div>
+
+<!-- DUYURU -->
+<div>
+<h3 class="font-black mb-2">DUYURU</h3>
+<input class="border p-2 w-full" placeholder="Duyuru Metni" oninput="data.announcement.text=this.value">
+<label class="block mt-2">
+<input type="checkbox" onchange="data.announcement.active=this.checked"> Aktif
+</label>
+</div>
+
+<!-- SOSYAL -->
+<div>
+<h3 class="font-black mb-2">SOSYAL & İLETİŞİM</h3>
+<input class="border p-2 w-full mb-2" placeholder="Instagram" oninput="data.socials.instagram=this.value">
+<input class="border p-2 w-full mb-2" placeholder="Facebook" oninput="data.socials.facebook=this.value">
+<input class="border p-2 w-full mb-2" placeholder="Pinterest" oninput="data.socials.pinterest=this.value">
+<input class="border p-2 w-full mb-2" placeholder="E-posta" oninput="data.socials.email=this.value">
+<input class="border p-2 w-full" placeholder="Konum" oninput="data.socials.location=this.value">
+</div>
+
+<!-- KATEGORİ -->
+<div>
+<div class="flex justify-between mb-2">
+<h3 class="font-black">KATEGORİLER</h3>
+<button onclick="addCategory()" class="bg-black text-white px-4 py-1 rounded">+ EKLE</button>
+</div>
+<div id="adminCats"></div>
+</div>
+
+<button onclick="save()" class="bg-emerald-600 text-white px-8 py-4 rounded w-full font-black">
+KAYDET
+</button>
+
+</div>
+</div>
+</section>
+
+<script>
+let data={
+ hero:{title:"SİZ HAYAL EDİN",subtitle:"Biz tasarlayalım",bg:"https://images.unsplash.com/photo-1618221195710"},
+ announcement:{text:"Yeni projeler yayında!",active:true},
+ socials:{instagram:"",facebook:"",pinterest:"",email:"",location:""},
+ categories:[{title:"MUTFAKLAR",gallery:[]}]
+};
+
+function render(){
+ heroTitle.innerText=data.hero.title;
+ heroSubtitle.innerText=data.hero.subtitle;
+ heroBg.style.backgroundImage=`url('${data.hero.bg}')`;
+
+ announcementBar.classList.toggle("hidden",!data.announcement.active);
+ announcementBar.innerText=data.announcement.text;
+
+ socials.innerHTML="";
+ if(data.socials.instagram) socials.innerHTML+=`<a href="${data.socials.instagram}"><i class="fab fa-instagram"></i></a>`;
+ if(data.socials.facebook) socials.innerHTML+=`<a href="${data.socials.facebook}"><i class="fab fa-facebook"></i></a>`;
+ if(data.socials.pinterest) socials.innerHTML+=`<a href="${data.socials.pinterest}"><i class="fab fa-pinterest"></i></a>`;
+
+ contactInfo.innerText=`${data.socials.email} • ${data.socials.location}`;
+
+ categoryGrid.innerHTML=data.categories.map((c,i)=>`
+ <div class="bg-white p-6 rounded-xl shadow">
+   <h3 class="font-black mb-2">${c.title}</h3>
+   <button onclick="openGallery(${i})" class="bg-amber-600 text-white px-4 py-2 rounded">
+   Galeri (${c.gallery.length})
+   </button>
+ </div>`).join("");
+
+ renderAdmin();
 }
+
+function openGallery(i){
+ modalTitle.innerText=data.categories[i].title;
+ galleryContent.innerHTML=data.categories[i].gallery.map(g=>`
+ <img src="${g}" class="aspect-square object-cover rounded">`).join("");
+ galleryModal.classList.add("active");
+}
+function closeGallery(){galleryModal.classList.remove("active")}
+
+function login(){
+ if(pass.value==="3421"){
+  login.style.display="none";
+  panel.classList.remove("hidden");
+ }
+}
+
+function addCategory(){
+ data.categories.push({title:"Yeni Kategori",gallery:[]});
+ render();
+}
+
+function renderAdmin(){
+ adminCats.innerHTML=data.categories.map((c,i)=>`
+ <div class="border p-4 mb-4 rounded">
+ <input class="border p-2 w-full mb-2" value="${c.title}" oninput="data.categories[${i}].title=this.value">
+ <input type="file" multiple onchange="upload(${i},this)">
+ </div>`).join("");
+}
+
+function upload(i,input){
+ [...input.files].forEach(f=>{
+  const r=new FileReader();
+  r.onload=e=>{data.categories[i].gallery.push(e.target.result);render();}
+  r.readAsDataURL(f);
+ })
+}
+
+function save(){
+ localStorage.setItem("cms",JSON.stringify(data));
+ alert("Kaydedildi");
+}
+
+const saved=localStorage.getItem("cms");
+if(saved) data=JSON.parse(saved);
+render();
+</script>
+
+</body>
+</html>
