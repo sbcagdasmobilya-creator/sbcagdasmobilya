@@ -11,15 +11,50 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         body { scroll-behavior: smooth; }
         .hero-bg { background: linear-gradient(135deg, rgba(0,0,0,0.7), rgba(139,69,19,0.6)); }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; align-items: center; justify-content: center; padding: 20px; }
         .modal.show { display: flex; }
         .chat-widget { position: fixed; bottom: 20px; right: 20px; z-index: 9998; }
-        .chat-box { display: none; width: 380px; height: 550px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); flex-direction: column; }
+        .chat-box { display: none; width: 100%; max-width: 380px; height: 90vh; max-height: 550px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); flex-direction: column; }
         .chat-box.show { display: flex; }
         .message { margin-bottom: 15px; animation: slideIn 0.3s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .star { color: #d1d5db; cursor: pointer; font-size: 28px; transition: all 0.2s; }
         .star.active, .star:hover { color: #fbbf24; transform: scale(1.2); }
+        
+        /* MOBILE RESPONSIVE */
+        @media (max-width: 768px) {
+            nav .nav-links { display: none; }
+            .chat-widget { bottom: 10px; right: 10px; }
+            .chat-box { bottom: 80px; right: 10px; left: 10px; width: auto; max-width: none; }
+            #hero h1 { font-size: 2.5rem !important; }
+            #hero p { font-size: 1rem !important; }
+            section h2 { font-size: 2rem !important; }
+            .admin-section { padding: 1rem !important; }
+            .category-card { margin-bottom: 1rem; }
+        }
+        
+        /* HAMBURGER MENU */
+        .hamburger { display: none; cursor: pointer; }
+        .hamburger div { width: 25px; height: 3px; background: #b45309; margin: 5px 0; transition: 0.3s; }
+        
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links { 
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: white;
+                flex-direction: column;
+                padding: 80px 30px;
+                box-shadow: -5px 0 15px rgba(0,0,0,0.2);
+                transition: 0.3s;
+                z-index: 999;
+            }
+            .nav-links.active { right: 0; }
+            .nav-links a { margin: 15px 0 !important; font-size: 1.2rem; }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -27,8 +62,15 @@
 <!-- NAVBAR -->
 <nav class="bg-white shadow-lg sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 id="siteTitle" class="text-3xl font-black text-amber-700">SB ÇAĞDAŞ MOBİLYA</h1>
-        <div class="flex gap-6">
+        <h1 id="siteTitle" class="text-2xl md:text-3xl font-black text-amber-700">SB ÇAĞDAŞ MOBİLYA</h1>
+        
+        <div class="hamburger" onclick="toggleMenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        
+        <div class="nav-links flex gap-4 md:gap-6">
             <a href="#about" class="font-semibold text-gray-700 hover:text-amber-600 transition">Hakkımızda</a>
             <a href="#products" class="font-semibold text-gray-700 hover:text-amber-600 transition">Ürünler</a>
             <a href="#reviews" class="font-semibold text-gray-700 hover:text-amber-600 transition">Yorumlar</a>
@@ -43,22 +85,22 @@
     <div id="heroBg" class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=1920')"></div>
     <div class="absolute inset-0 hero-bg"></div>
     <div class="relative z-10 text-center text-white px-6">
-        <h1 id="heroTitle" class="text-7xl font-black mb-6">HAYALLERİNİZDEKİ MEKAN</h1>
-        <p id="heroSubtitle" class="text-2xl mb-12 font-light">Özel tasarım mobilyalarla yaşam alanlarınızı dönüştürüyoruz</p>
-        <a href="#contact" class="inline-block bg-amber-600 hover:bg-amber-700 text-white px-12 py-5 rounded-full font-bold text-lg transition-all transform hover:scale-105 shadow-2xl">
+        <h1 id="heroTitle" class="text-4xl md:text-7xl font-black mb-4 md:mb-6 leading-tight">HAYALLERİNİZDEKİ MEKAN</h1>
+        <p id="heroSubtitle" class="text-lg md:text-2xl mb-8 md:mb-12 font-light">Özel tasarım mobilyalarla yaşam alanlarınızı dönüştürüyoruz</p>
+        <a href="#contact" class="inline-block bg-amber-600 hover:bg-amber-700 text-white px-8 md:px-12 py-4 md:py-5 rounded-full font-bold text-base md:text-lg transition-all transform hover:scale-105 shadow-2xl">
             ÜCRETSİZ TEKLİF ALIN
         </a>
     </div>
 </section>
 
 <!-- HAKKIMIZDA -->
-<section id="about" class="py-24 px-6 bg-white">
+<section id="about" class="py-16 md:py-24 px-6 bg-white">
     <div class="max-w-6xl mx-auto">
-        <h2 class="text-5xl font-black text-center mb-16">Hakkımızda</h2>
-        <div class="grid md:grid-cols-2 gap-12 items-center">
+        <h2 class="text-3xl md:text-5xl font-black text-center mb-12 md:mb-16">Hakkımızda</h2>
+        <div class="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
             <img id="aboutImg" src="https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=800" class="rounded-3xl shadow-2xl">
             <div>
-                <p id="aboutText" class="text-lg text-gray-700 leading-relaxed mb-6">
+                <p id="aboutText" class="text-base md:text-lg text-gray-700 leading-relaxed mb-6">
                     20 yılı aşkın tecrübemizle, Beylikdüzü'nün en güvenilir mobilya üreticisiyiz. 
                     Her projede müşteri memnuniyetini ön planda tutarak, hayalinizdeki yaşam alanlarını gerçeğe dönüştürüyoruz.
                 </p>
@@ -82,20 +124,20 @@
 </section>
 
 <!-- ÜRÜNLER -->
-<section id="products" class="py-24 px-6 bg-gray-100">
+<section id="products" class="py-16 md:py-24 px-6 bg-gray-100">
     <div class="max-w-7xl mx-auto">
-        <h2 class="text-5xl font-black text-center mb-16">Ürün Kategorilerimiz</h2>
-        <div id="categoryGrid" class="grid md:grid-cols-3 gap-8"></div>
+        <h2 class="text-3xl md:text-5xl font-black text-center mb-12 md:mb-16">Ürün Kategorilerimiz</h2>
+        <div id="categoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"></div>
     </div>
 </section>
 
 <!-- YORUMLAR -->
-<section id="reviews" class="py-24 px-6 bg-white">
+<section id="reviews" class="py-16 md:py-24 px-6 bg-white">
     <div class="max-w-6xl mx-auto">
-        <h2 class="text-5xl font-black text-center mb-16">Müşteri Yorumları</h2>
-        <div id="reviewsGrid" class="grid md:grid-cols-3 gap-8 mb-12"></div>
+        <h2 class="text-3xl md:text-5xl font-black text-center mb-12 md:mb-16">Müşteri Yorumları</h2>
+        <div id="reviewsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-8 md:mb-12"></div>
         <div class="text-center">
-            <button onclick="openReviewForm()" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full font-bold text-lg transition">
+            <button onclick="openReviewForm()" class="bg-amber-600 hover:bg-amber-700 text-white px-8 md:px-10 py-3 md:py-4 rounded-full font-bold text-base md:text-lg transition">
                 <i class="fas fa-star mr-2"></i> YORUM YAZ
             </button>
         </div>
@@ -103,10 +145,10 @@
 </section>
 
 <!-- İLETİŞİM -->
-<section id="contact" class="py-24 px-6 bg-gray-900 text-white">
+<section id="contact" class="py-16 md:py-24 px-6 bg-gray-900 text-white">
     <div class="max-w-6xl mx-auto">
-        <h2 class="text-5xl font-black text-center mb-16">İletişim</h2>
-        <div class="grid md:grid-cols-2 gap-12">
+        <h2 class="text-3xl md:text-5xl font-black text-center mb-12 md:mb-16">İletişim</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             <div class="space-y-6">
                 <div class="flex items-center gap-4">
                     <i class="fas fa-map-marker-alt text-3xl text-amber-500"></i>
@@ -126,7 +168,7 @@
                     <i class="fas fa-envelope text-3xl text-amber-500"></i>
                     <div>
                         <p class="text-sm text-gray-400">E-posta</p>
-                        <p id="contactEmail" class="text-lg font-semibold">info@sbcagdas.com</p>
+                        <p id="contactEmail" class="text-lg font-semibold"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c2abaca4ad82b1a0a1a3a5a6a3b1eca1adaf">[email&#160;protected]</a></p>
                     </div>
                 </div>
                 <div class="flex gap-4 mt-8">
@@ -338,7 +380,7 @@
     <p>&copy; 2026 SB Çağdaş Mobilya - Tüm hakları saklıdır.</p>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 let DATA = {
     general: { title: 'SB ÇAĞDAŞ MOBİLYA', heroTitle: 'HAYALLERİNİZDEKİ MEKAN', heroSub: 'Özel tasarım mobilyalarla yaşam alanlarınızı dönüştürüyoruz', heroBg: 'https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=1920' },
     about: { text: '20 yılı aşkın tecrübemizle, Beylikdüzü\'nün en güvenilir mobilya üreticisiyiz.', img: 'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=800' },
@@ -647,15 +689,11 @@ function getBot(msg) {
     if (KB.farewell.some(f => msg.includes(f))) return 'Görüşmek üzere! 👋';
     if (msg.includes('nasılsın')) return 'İyiyim teşekkürler! Size mobilya konusunda nasıl yardımcı olabilirim?';
     
-    for (const [key, answer] of Object.entries(KB.questions)) {
-        if (msg.includes(key)) return answer;
-    }
-    
-    return 'Anlayamadım. Mutfak, banyo, fiyat, teslimat, garanti, adres, telefon hakkında sorabilirsiniz. 📞 0541 224 52 56';
+    for (const [key, answer] of Object.entries(KB.questions)) 
+function toggleMenu() {
+    document.querySelector('.nav-links').classList.toggle('active');
 }
-
 render();
 </script>
-
 </body>
 </html>
