@@ -3,92 +3,580 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Panel</title>
+<title>SB Çağdaş Mobilya</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
-body{font-family:Arial;background:#f4f4f4;padding:20px}
-.box{background:#fff;padding:20px;border-radius:10px;max-width:500px;margin:auto}
-input,textarea{width:100%;padding:10px;margin:8px 0}
-button{padding:10px 15px;background:#111;color:#fff;border:none;border-radius:6px;cursor:pointer}
-button:hover{opacity:.8}
-h2{text-align:center}
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{background:#fafaf9;overflow-x:hidden;}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.93);z-index:9999;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.modal.show{display:flex;}
+.chat{position:fixed;bottom:88px;right:20px;width:360px;max-width:90vw;height:500px;background:white;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.3);display:none;flex-direction:column;z-index:9997;}
+.chat.show{display:flex;}
+.msg{margin-bottom:12px;}
+.user{align-self:flex-end;background:#d97706;color:white;padding:10px 14px;border-radius:16px 16px 4px 16px;max-width:75%;}
+.bot{align-self:flex-start;background:white;border:2px solid #e5e7eb;color:#1f2937;padding:10px 14px;border-radius:16px 16px 16px 4px;max-width:75%;}
+.typing{align-self:flex-start;background:white;border:2px solid #e5e7eb;padding:10px 14px;border-radius:16px;display:flex;gap:4px;}
+.dot{width:8px;height:8px;background:#d97706;border-radius:50%;animation:b .8s infinite;}
+.dot:nth-child(2){animation-delay:.15s;}
+.dot:nth-child(3){animation-delay:.3s;}
+@keyframes b{0%,80%,100%{transform:translateY(0);}40%{transform:translateY(-8px);}}
+.star{color:#d1d5db;cursor:pointer;font-size:28px;transition:.2s;}
+.star.active,.star:hover{color:#fbbf24;}
+@media(max-width:768px){.chat{bottom:10px;right:10px;left:10px;width:auto;}.hero-t{font-size:2rem!important;}}
 </style>
 </head>
 <body>
 
-<div class="box">
-<h2>Ürün Ekle</h2>
+<nav class="bg-white shadow-md sticky top-0 z-50">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 id="navT" class="text-2xl font-black text-amber-700">YÜKLENİYOR...</h1>
+    <div class="flex gap-6">
+      <a href="#about" class="font-semibold text-gray-700 hover:text-amber-600">Hakkımızda</a>
+      <a href="#products" class="font-semibold text-gray-700 hover:text-amber-600">Ürünler</a>
+      <a href="#reviews" class="font-semibold text-gray-700 hover:text-amber-600">Yorumlar</a>
+      <a href="#contact" class="font-semibold text-gray-700 hover:text-amber-600">İletişim</a>
+    </div>
+  </div>
+</nav>
 
-<input type="text" id="urunAdi" placeholder="Ürün Adı">
-<input type="text" id="urunFiyat" placeholder="Fiyat">
-<textarea id="urunAciklama" placeholder="Açıklama"></textarea>
+<div id="duyuru" style="display:none;" class="bg-gradient-to-r from-red-600 to-pink-600 text-white py-3 px-6 text-center font-bold">
+  <i class="fas fa-bullhorn mr-2"></i><span id="duyuruText"></span>
+</div>
 
-<button onclick="urunEkle()">Kaydet</button>
+<section class="relative h-screen flex items-center justify-center">
+  <div id="heroB" class="absolute inset-0 bg-cover bg-center" style="background-image:url('https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=1920')"></div>
+  <div class="absolute inset-0" style="background:linear-gradient(135deg,rgba(0,0,0,.7),rgba(120,53,15,.55))"></div>
+  <div class="relative z-10 text-center text-white px-6 max-w-4xl">
+    <h1 id="heroT" class="hero-t text-7xl font-black mb-6 leading-tight">YÜKLENİYOR...</h1>
+    <p id="heroS" class="text-2xl mb-12">Yükleniyor...</p>
+    <div class="flex gap-4 justify-center flex-wrap">
+      <a href="#contact" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full font-bold text-lg transition">TEKLİF AL</a>
+      <button onclick="toggleChat()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full font-bold text-lg transition flex items-center gap-2">
+        <i class="fas fa-robot"></i> AI SB ÇAĞDAŞ
+      </button>
+    </div>
+  </div>
+</section>
 
-<hr>
+<section id="about" class="py-24 px-6 bg-white">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-5xl font-black text-center mb-16">Hakkımızda</h2>
+    <div class="grid md:grid-cols-2 gap-12 items-center">
+      <img id="aboutI" src="https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=800" class="rounded-3xl shadow-2xl">
+      <p id="aboutT" class="text-lg text-gray-700 leading-relaxed">Yükleniyor...</p>
+    </div>
+  </div>
+</section>
 
-<h3>Eklenen Ürünler</h3>
-<div id="liste"></div>
+<section id="products" class="py-24 px-6 bg-gray-100">
+  <div class="max-w-7xl mx-auto">
+    <h2 class="text-5xl font-black text-center mb-16">Ürün Kategorilerimiz</h2>
+    <div id="catG" class="grid md:grid-cols-3 gap-8"><p class="col-span-3 text-center text-gray-400">Yükleniyor...</p></div>
+  </div>
+</section>
 
+<section id="reviews" class="py-24 px-6 bg-white">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-5xl font-black text-center mb-16">Müşteri Yorumları</h2>
+    <div id="revG" class="grid md:grid-cols-3 gap-8 mb-12"><p class="col-span-3 text-center text-gray-400">Yükleniyor...</p></div>
+    <div class="text-center">
+      <button onclick="openRevM()" class="bg-amber-600 hover:bg-amber-700 text-white px-10 py-4 rounded-full font-bold text-lg">
+        <i class="fas fa-star mr-2"></i>YORUM YAZ
+      </button>
+    </div>
+  </div>
+</section>
+
+<section id="contact" class="py-24 px-6 bg-gray-900 text-white">
+  <div class="max-w-6xl mx-auto">
+    <h2 class="text-5xl font-black text-center mb-16">İletişim</h2>
+    <div class="grid md:grid-cols-2 gap-12">
+      <div class="space-y-6">
+        <div class="flex items-center gap-4">
+          <i class="fas fa-map-marker-alt text-3xl text-amber-500"></i>
+          <div><p class="text-sm text-gray-400">Adres</p><p id="ctA" class="font-semibold">...</p></div>
+        </div>
+        <div class="flex items-center gap-4">
+          <i class="fas fa-phone text-3xl text-amber-500"></i>
+          <div><p class="text-sm text-gray-400">Telefon</p><p id="ctP" class="font-semibold">...</p></div>
+        </div>
+        <div class="flex gap-3 mt-6">
+          <a id="ig" href="#" class="w-12 h-12 bg-pink-600 rounded-full flex items-center justify-center hover:scale-110 transition"><i class="fab fa-instagram"></i></a>
+          <a id="fb" href="#" class="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center hover:scale-110 transition"><i class="fab fa-facebook-f"></i></a>
+        </div>
+      </div>
+      <div class="bg-white/10 p-8 rounded-3xl">
+        <h3 class="text-2xl font-bold mb-6">WhatsApp Mesaj</h3>
+        <input id="qN" placeholder="Adınız" class="w-full p-4 rounded-xl mb-4 bg-white/20 text-white placeholder-white/60">
+        <textarea id="qM" placeholder="Mesajınız" rows="4" class="w-full p-4 rounded-xl mb-4 bg-white/20 text-white placeholder-white/60"></textarea>
+        <button onclick="sendWA()" class="w-full bg-green-600 hover:bg-green-700 text-white p-4 rounded-xl font-bold"><i class="fab fa-whatsapp mr-2"></i>GÖNDER</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="bg-gray-900 text-white text-center py-8">
+  <p class="text-sm opacity-60">© 2026 SB Çağdaş Mobilya</p>
+</footer>
+
+<button onclick="openAdmin()" class="fixed bottom-20 right-6 w-12 h-12 bg-black hover:bg-gray-800 text-white rounded-full shadow-2xl flex items-center justify-center font-bold text-xs z-50">SB</button>
+
+<div id="adminM" class="modal">
+  <div class="bg-white rounded-3xl p-8 max-w-md w-full">
+    <h3 class="text-3xl font-black mb-6 text-center">🔐 ADMIN GİRİŞİ</h3>
+    <input id="adminName" type="text" placeholder="İsminizi girin" class="w-full p-4 rounded-xl border-2 mb-4">
+    <input id="adminPass" type="password" placeholder="Şifre" class="w-full p-4 rounded-xl border-2 mb-4">
+    <button onclick="adminLogin()" class="w-full bg-red-600 hover:bg-red-700 text-white p-4 rounded-xl font-bold">GİRİŞ</button>
+  </div>
+</div>
+
+<div id="adminPanel" class="modal" style="align-items:flex-start;padding-top:20px;">
+  <div class="bg-white rounded-3xl max-w-6xl w-full" style="max-height:90vh;overflow-y:auto;">
+    <div class="bg-red-600 text-white p-6 rounded-t-3xl flex justify-between items-center sticky top-0 z-10">
+      <h2 class="text-3xl font-black">⚙️ YÖNETİM</h2>
+      <div class="flex gap-3">
+        <button onclick="saveAll()" class="bg-green-500 px-8 py-3 rounded-xl font-bold">💾 KAYDET</button>
+        <button onclick="closeAdmin()" class="bg-gray-700 px-6 py-3 rounded-xl font-bold">✕</button>
+      </div>
+    </div>
+    <div class="p-8 space-y-8">
+      <div class="border-4 border-red-400 rounded-2xl p-6 bg-red-50">
+        <h3 class="text-2xl font-black mb-4">📢 DUYURU</h3>
+        <div class="flex items-center gap-3 mb-4">
+          <input type="checkbox" id="a_duyuruOn" class="w-6 h-6">
+          <label for="a_duyuruOn" class="font-bold">Duyuru Göster</label>
+        </div>
+        <input id="a_duyuru" placeholder="Duyuru metni" class="w-full p-4 rounded-xl border-2">
+      </div>
+      <div class="border-4 border-blue-400 rounded-2xl p-6 bg-blue-50">
+        <h3 class="text-2xl font-black mb-4">🎨 GENEL</h3>
+        <div class="space-y-3">
+          <input id="a_title" placeholder="Site Başlığı" class="w-full p-4 rounded-xl border-2">
+          <input id="a_heroT" placeholder="Hero Başlık" class="w-full p-4 rounded-xl border-2">
+          <input id="a_heroS" placeholder="Hero Alt Başlık" class="w-full p-4 rounded-xl border-2">
+          <input id="a_heroB" placeholder="Hero Arkaplan URL" class="w-full p-4 rounded-xl border-2">
+          <textarea id="a_about" placeholder="Hakkımızda" rows="4" class="w-full p-4 rounded-xl border-2"></textarea>
+        </div>
+      </div>
+      <div class="border-4 border-purple-400 rounded-2xl p-6 bg-purple-50">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-black">🤖 CHATBOT SORU-CEVAP</h3>
+          <button onclick="addQA()" class="bg-purple-600 text-white px-6 py-3 rounded-xl font-bold">+ EKLE</button>
+        </div>
+        <div id="qaList"></div>
+      </div>
+      <div class="border-4 border-green-400 rounded-2xl p-6 bg-green-50">
+        <div class="flex justify-between items-center mb-6">
+          <h3 class="text-2xl font-black">📸 KATEGORİLER</h3>
+          <button onclick="addCat()" class="bg-green-600 text-white px-6 py-3 rounded-xl font-bold">+ EKLE</button>
+        </div>
+        <div id="catList"></div>
+      </div>
+      <div class="border-4 border-orange-400 rounded-2xl p-6 bg-orange-50">
+        <h3 class="text-2xl font-black mb-4">📞 İLETİŞİM</h3>
+        <div class="grid md:grid-cols-2 gap-3">
+          <input id="a_address" placeholder="Adres" class="p-4 rounded-xl border-2">
+          <input id="a_phone" placeholder="Telefon" class="p-4 rounded-xl border-2">
+          <input id="a_ig" placeholder="Instagram URL" class="p-4 rounded-xl border-2">
+          <input id="a_fb" placeholder="Facebook URL" class="p-4 rounded-xl border-2">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="galM" class="modal">
+  <div class="max-w-5xl w-full p-6">
+    <div class="flex justify-between mb-6">
+      <h2 id="galT" class="text-4xl font-black text-white"></h2>
+      <button onclick="closeGal()" class="text-white text-5xl">&times;</button>
+    </div>
+    <div id="galC" class="grid grid-cols-4 gap-3"></div>
+  </div>
+</div>
+
+<div id="revM" class="modal">
+  <div class="bg-white rounded-3xl p-8 max-w-md w-full">
+    <h3 class="text-3xl font-black mb-6">⭐ Yorum Yaz</h3>
+    <input id="rN" placeholder="Adınız" class="w-full p-4 rounded-xl border-2 mb-4">
+    <div class="mb-4">
+      <p class="font-bold mb-2">Puan:</p>
+      <div class="flex gap-2" id="stars">
+        <i class="fas fa-star star active" data-r="1"></i>
+        <i class="fas fa-star star active" data-r="2"></i>
+        <i class="fas fa-star star active" data-r="3"></i>
+        <i class="fas fa-star star active" data-r="4"></i>
+        <i class="fas fa-star star active" data-r="5"></i>
+      </div>
+    </div>
+    <textarea id="rT" placeholder="Yorumunuz" rows="5" class="w-full p-4 rounded-xl border-2 mb-4"></textarea>
+    <div class="flex gap-3">
+      <button onclick="submitRev()" class="flex-1 bg-amber-600 text-white p-4 rounded-xl font-bold">GÖNDER</button>
+      <button onclick="closeRevM()" class="flex-1 bg-gray-300 p-4 rounded-xl font-bold">İPTAL</button>
+    </div>
+  </div>
+</div>
+
+<div style="position:fixed;bottom:20px;right:20px;z-index:9998;">
+  <div id="chatBox" class="chat">
+    <div class="bg-amber-600 p-4 rounded-t-2xl flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center"><i class="fas fa-robot text-amber-600"></i></div>
+        <div><p class="font-bold text-white">SB Asistan</p></div>
+      </div>
+      <button onclick="toggleChat()" class="text-white text-2xl">&times;</button>
+    </div>
+    <div id="chatMsgs" class="flex-1 overflow-y-auto p-4 bg-gray-50 flex flex-col gap-2"></div>
+    <div class="p-4 border-t">
+      <div class="flex gap-2">
+        <input id="chatIn" placeholder="Mesaj..." class="flex-1 p-3 rounded-xl border-2" onkeypress="if(event.key==='Enter')sendChat()">
+        <button onclick="sendChat()" class="bg-amber-600 text-white px-6 rounded-xl font-bold"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+  <button onclick="toggleChat()" class="w-16 h-16 bg-amber-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl">
+    <i class="fas fa-comment-dots"></i>
+  </button>
 </div>
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import{initializeApp}from"https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+import{getFirestore,doc,getDoc,setDoc}from"https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAP1kwGbsjt2pBuV5ozVkiDMhgCv7Tm_4g",
-  authDomain: "sbcagdas-794f5.firebaseapp.com",
-  projectId: "sbcagdas-794f5",
-  storageBucket: "sbcagdas-794f5.firebasestorage.app",
-  messagingSenderId: "139749695415",
-  appId: "1:139749695415:web:2227dffd0bf982b7541232"
+const firebaseConfig={
+  apiKey:"AIzaSyDD3dNI8Che2kVgj_rZOx54JkqDQITsrIc",
+  authDomain:"sb-data-pack.firebaseapp.com",
+  projectId:"sb-data-pack",
+  storageBucket:"sb-data-pack.firebasestorage.app",
+  messagingSenderId:"186587567110",
+  appId:"1:186587567110:web:f367df879bd96df3b81f87"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
 
-window.urunEkle = async function() {
+let D={
+  general:{title:'SB ÇAĞDAŞ MOBİLYA',heroT:'HAYALLERİNİZDEKİ MEKAN',heroS:'Özel tasarım mobilyalarla yaşam alanlarınızı dönüştürüyoruz',heroB:'https://images.unsplash.com/photo-1556912167-f556f1f39fdf?w=1920'},
+  about:{text:'20 yılı aşkın tecrübemizle, Beylikdüzü\'nün en güvenilir mobilya üreticisiyiz.',img:'https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?w=800'},
+  duyuru:{on:false,text:''},
+  categories:[],
+  contact:{address:'Yakuplu Mah. Beylikdüzü / İSTANBUL',phone:'0541 224 52 56',ig:'#',fb:'#'},
+  reviews:[],
+  chatbot:[
+    {q:'merhaba',a:'Merhaba! 👋 Size nasıl yardımcı olabilirim?'},
+    {q:'nasılsın',a:'İyiyim teşekkürler! 😊 Sen nasılsın?'},
+    {q:'fiyat',a:'Fiyat için ücretsiz keşif yapıyoruz! 📞 TELEFON'}
+  ]
+};
 
-  const ad = document.getElementById("urunAdi").value;
-  const fiyat = document.getElementById("urunFiyat").value;
-  const aciklama = document.getElementById("urunAciklama").value;
-
-  if(!ad || !fiyat){
-    alert("Ürün adı ve fiyat boş olamaz");
-    return;
+async function loadData(){
+  try{
+    const docRef=doc(db,"website","data");
+    const docSnap=await getDoc(docRef);
+    if(docSnap.exists()){
+      D=docSnap.data();
+      console.log("✅ Firebase'den veri yüklendi!");
+    }else{
+      await setDoc(docRef,D);
+      console.log("✅ İlk veri Firebase'e kaydedildi!");
+    }
+  }catch(e){
+    console.error("Veri yüklenemedi:",e);
   }
-
-  await addDoc(collection(db, "products"), {
-    ad,
-    fiyat,
-    aciklama,
-    tarih: new Date()
-  });
-
-  alert("🔥 Buluta Kaydedildi!");
-  loadProducts();
+  render();
 }
 
-async function loadProducts(){
-  const liste = document.getElementById("liste");
-  liste.innerHTML = "";
+window.saveToFirebase=async function(){
+  try{
+    await setDoc(doc(db,"website","data"),D);
+    alert("💾 Firebase'e kaydedildi! Herkes görebilir artık!");
+    return true;
+  }catch(e){
+    alert("❌ Hata: "+e.message);
+    return false;
+  }
+};
 
-  const querySnapshot = await getDocs(collection(db, "products"));
-  querySnapshot.forEach((doc) => {
-    const data = doc.data();
-    liste.innerHTML += `
-      <div style="border-bottom:1px solid #ddd;padding:8px 0">
-        <b>${data.ad}</b><br>
-        ${data.fiyat} TL<br>
-        <small>${data.aciklama || ""}</small>
+function render(){
+  document.getElementById('navT').textContent=D.general.title;
+  document.getElementById('heroT').textContent=D.general.heroT;
+  document.getElementById('heroS').textContent=D.general.heroS;
+  document.getElementById('heroB').style.backgroundImage=`url('${D.general.heroB}')`;
+  document.getElementById('aboutT').textContent=D.about.text;
+  document.getElementById('aboutI').src=D.about.img;
+  document.getElementById('ctA').textContent=D.contact.address;
+  document.getElementById('ctP').textContent=D.contact.phone;
+  document.getElementById('ig').href=D.contact.ig;
+  document.getElementById('fb').href=D.contact.fb;
+  
+  if(D.duyuru&&D.duyuru.on&&D.duyuru.text){
+    document.getElementById('duyuru').style.display='block';
+    document.getElementById('duyuruText').textContent=D.duyuru.text;
+  }else{
+    document.getElementById('duyuru').style.display='none';
+  }
+  
+  const cg=document.getElementById('catG');
+  cg.innerHTML=!D.categories.length?'<p class="col-span-3 text-center text-gray-400 py-12">Henüz kategori yok</p>':D.categories.map((c,i)=>`
+    <div class="bg-white rounded-3xl shadow-xl cursor-pointer hover:-translate-y-2 transition" onclick="openGal(${i})">
+      <div class="h-56 bg-gray-200 flex items-center justify-center overflow-hidden">
+        ${c.photos&&c.photos[0]?`<img src="${c.photos[0]}" class="w-full h-full object-cover">`:`<i class="fas fa-image text-5xl text-gray-400"></i>`}
       </div>
-    `;
-  });
+      <div class="p-6 text-center">
+        <h3 class="text-xl font-black">${c.name}</h3>
+        <p class="text-sm text-gray-600 mt-2">${c.photos?c.photos.length:0} Fotoğraf</p>
+      </div>
+    </div>
+  `).join('');
+  
+  const rg=document.getElementById('revG');
+  rg.innerHTML=!D.reviews.length?'<p class="col-span-3 text-center text-gray-400">Henüz yorum yok</p>':D.reviews.map(r=>`
+    <div class="bg-gray-50 p-6 rounded-2xl shadow">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-11 h-11 bg-amber-600 rounded-full flex items-center justify-center text-white font-bold">${r.name.charAt(0)}</div>
+        <div><p class="font-bold">${r.name}</p><div class="text-yellow-400">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</div></div>
+      </div>
+      <p class="text-gray-700">${r.text}</p>
+    </div>
+  `).join('');
 }
 
-loadProducts();
+window.openGal=function(i){
+  const c=D.categories[i];
+  document.getElementById('galT').textContent=c.name;
+  document.getElementById('galC').innerHTML=c.photos&&c.photos.length?c.photos.map(p=>`<div class="aspect-square rounded-xl overflow-hidden"><img src="${p}" class="w-full h-full object-cover"></div>`).join(''):'<p class="text-white col-span-4 text-center">Fotoğraf yok</p>';
+  document.getElementById('galM').classList.add('show');
+};
+window.closeGal=function(){document.getElementById('galM').classList.remove('show');};
 
+let revRating=5;
+window.openRevM=function(){document.getElementById('revM').classList.add('show');};
+window.closeRevM=function(){document.getElementById('revM').classList.remove('show');};
+document.querySelectorAll('.star').forEach(s=>{
+  s.addEventListener('click',function(){
+    revRating=parseInt(this.dataset.r);
+    document.querySelectorAll('.star').forEach((st,i)=>{i<revRating?st.classList.add('active'):st.classList.remove('active');});
+  });
+});
+window.submitRev=async function(){
+  const n=document.getElementById('rN').value.trim();
+  const t=document.getElementById('rT').value.trim();
+  if(!n||!t){alert('Lütfen tüm alanları doldurun!');return;}
+  D.reviews.unshift({name:n,rating:revRating,text:t});
+  await saveToFirebase();
+  render();
+  closeRevM();
+  document.getElementById('rN').value='';
+  document.getElementById('rT').value='';
+};
+
+window.sendWA=function(){
+  const n=document.getElementById('qN').value.trim();
+  const m=document.getElementById('qM').value.trim();
+  if(!n||!m){alert('Lütfen doldur!');return;}
+  const ph=D.contact.phone.replace(/\D/g,'');
+  window.open(`https://wa.me/9${ph}?text=Merhaba, ben ${encodeURIComponent(n)}. ${encodeURIComponent(m)}`,'_blank');
+  document.getElementById('qN').value='';
+  document.getElementById('qM').value='';
+};
+
+window.openAdmin=function(){document.getElementById('adminM').classList.add('show');};
+window.closeAdmin=function(){document.getElementById('adminPanel').classList.remove('show');};
+
+window.adminLogin=function(){
+  const name=document.getElementById('adminName').value.trim();
+  const pass=document.getElementById('adminPass').value;
+  if(!name){alert('İsim yazın!');return;}
+  if(pass!=='212121'){alert('Hatalı şifre!');return;}
+  document.getElementById('adminM').classList.remove('show');
+  document.getElementById('adminPanel').classList.add('show');
+  loadAdmin();
+};
+
+function loadAdmin(){
+  document.getElementById('a_duyuruOn').checked=D.duyuru&&D.duyuru.on;
+  document.getElementById('a_duyuru').value=D.duyuru&&D.duyuru.text||'';
+  document.getElementById('a_title').value=D.general.title;
+  document.getElementById('a_heroT').value=D.general.heroT;
+  document.getElementById('a_heroS').value=D.general.heroS;
+  document.getElementById('a_heroB').value=D.general.heroB;
+  document.getElementById('a_about').value=D.about.text;
+  document.getElementById('a_address').value=D.contact.address;
+  document.getElementById('a_phone').value=D.contact.phone;
+  document.getElementById('a_ig').value=D.contact.ig==='#'?'':D.contact.ig;
+  document.getElementById('a_fb').value=D.contact.fb==='#'?'':D.contact.fb;
+  renderQA();
+  renderCats();
+}
+
+function renderQA(){
+  document.getElementById('qaList').innerHTML=!D.chatbot||!D.chatbot.length?'<p class="text-center text-gray-400 py-6">Henüz soru yok</p>':D.chatbot.map((qa,i)=>`
+    <div class="mb-4 p-4 bg-white rounded-xl border-2">
+      <div class="flex gap-3 items-start mb-3">
+        <input value="${qa.q}" onchange="D.chatbot[${i}].q=this.value.toLowerCase()" placeholder="Soru" class="flex-1 p-3 rounded-xl border-2 font-bold">
+        <button onclick="delQA(${i})" class="bg-red-600 text-white px-4 py-2 rounded-xl font-bold">×</button>
+      </div>
+      <textarea onchange="D.chatbot[${i}].a=this.value" rows="2" placeholder="Cevap" class="w-full p-3 rounded-xl border-2">${qa.a}</textarea>
+    </div>
+  `).join('');
+}
+
+window.addQA=function(){
+  if(!D.chatbot)D.chatbot=[];
+  D.chatbot.push({q:'yeni',a:'Yeni cevap'});
+  renderQA();
+};
+
+window.delQA=function(i){
+  if(confirm('Sil?')){D.chatbot.splice(i,1);renderQA();}
+};
+
+function renderCats(){
+  document.getElementById('catList').innerHTML=!D.categories.length?'<p class="text-center text-gray-400 py-6">Henüz kategori yok</p>':D.categories.map((c,i)=>`
+    <div class="mb-4 p-4 bg-white rounded-xl border-2">
+      <div class="flex gap-3 mb-3">
+        <input value="${c.name}" onchange="D.categories[${i}].name=this.value" class="flex-1 p-3 rounded-xl border-2 font-bold">
+        <button onclick="delCat(${i})" class="bg-red-600 text-white px-4 py-2 rounded-xl">×</button>
+      </div>
+      <div class="flex gap-2 mb-3">
+        <label class="flex-1 bg-green-600 text-white p-3 rounded-xl cursor-pointer font-bold text-center">
+          DOSYA YÜKLE
+          <input type="file" accept="image/*" multiple onchange="uploadPics(${i},this)" class="hidden">
+        </label>
+        <input id="url${i}" placeholder="URL" class="flex-1 p-3 rounded-xl border-2">
+        <button onclick="addUrl(${i})" class="bg-blue-600 text-white px-4 rounded-xl font-bold">+</button>
+      </div>
+      <div class="grid grid-cols-4 gap-2">
+        ${c.photos&&c.photos.length?c.photos.map((p,j)=>`
+          <div class="relative group">
+            <img src="${p}" class="w-full h-20 object-cover rounded">
+            <button onclick="delPic(${i},${j})" class="absolute top-1 right-1 bg-red-600 text-white w-6 h-6 rounded-full text-xs opacity-0 group-hover:opacity-100">×</button>
+          </div>
+        `).join(''):'<p class="col-span-4 text-gray-400 text-center py-4">Fotoğraf yok</p>'}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.addCat=function(){D.categories.push({name:'Yeni',photos:[]});renderCats();render();};
+window.delCat=function(i){if(confirm('Sil?')){D.categories.splice(i,1);renderCats();render();}};
+window.uploadPics=function(ci,inp){
+  const f=Array.from(inp.files);
+  if(!D.categories[ci].photos)D.categories[ci].photos=[];
+  let n=0;
+  f.forEach(fi=>{
+    const r=new FileReader();
+    r.onload=e=>{
+      D.categories[ci].photos.push(e.target.result);
+      n++;
+      if(n===f.length){renderCats();render();alert(`✅ ${n} yüklendi!`);}
+    };
+    r.readAsDataURL(fi);
+  });
+};
+window.addUrl=function(ci){
+  const u=document.getElementById(`url${ci}`).value.trim();
+  if(!u){alert('URL gir!');return;}
+  if(!D.categories[ci].photos)D.categories[ci].photos=[];
+  D.categories[ci].photos.push(u);
+  document.getElementById(`url${ci}`).value='';
+  renderCats();render();
+};
+window.delPic=function(ci,pi){
+  if(confirm('Sil?')){D.categories[ci].photos.splice(pi,1);renderCats();render();}
+};
+
+window.saveAll=async function(){
+  D.duyuru={on:document.getElementById('a_duyuruOn').checked,text:document.getElementById('a_duyuru').value};
+  D.general.title=document.getElementById('a_title').value;
+  D.general.heroT=document.getElementById('a_heroT').value;
+  D.general.heroS=document.getElementById('a_heroS').value;
+  D.general.heroB=document.getElementById('a_heroB').value;
+  D.about.text=document.getElementById('a_about').value;
+  D.contact.address=document.getElementById('a_address').value;
+  D.contact.phone=document.getElementById('a_phone').value;
+  D.contact.ig=document.getElementById('a_ig').value||'#';
+  D.contact.fb=document.getElementById('a_fb').value||'#';
+  await saveToFirebase();
+  render();
+};
+
+window.toggleChat=function(){
+  const b=document.getElementById('chatBox');
+  b.classList.toggle('show');
+  if(b.classList.contains('show')&&!document.getElementById('chatMsgs').children.length){
+    addBot(`Merhaba! 👋 Ben ${D.general.title} asistanıyım. Ne soracaktın?`);
+  }
+};
+
+function addUser(t){
+  const d=document.createElement('div');
+  d.className='msg user';
+  d.textContent=t;
+  document.getElementById('chatMsgs').appendChild(d);
+  document.getElementById('chatMsgs').scrollTop=99999;
+}
+
+function addBot(h){
+  const d=document.createElement('div');
+  d.className='msg bot';
+  d.innerHTML=h;
+  document.getElementById('chatMsgs').appendChild(d);
+  document.getElementById('chatMsgs').scrollTop=99999;
+}
+
+function showTyping(){
+  const d=document.createElement('div');
+  d.className='typing';
+  d.id='typingDot';
+  d.innerHTML='<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+  document.getElementById('chatMsgs').appendChild(d);
+  document.getElementById('chatMsgs').scrollTop=99999;
+}
+
+function removeTyping(){
+  const t=document.getElementById('typingDot');
+  if(t)t.remove();
+}
+
+window.sendChat=function(){
+  const inp=document.getElementById('chatIn');
+  const msg=inp.value.trim();
+  if(!msg)return;
+  addUser(msg);
+  inp.value='';
+  showTyping();
+  setTimeout(()=>{
+    removeTyping();
+    addBot(getReply(msg));
+  },600);
+};
+
+function getReply(msg){
+  const m=msg.toLowerCase().replace(/[ğüşıöç]/g,c=>({'ğ':'g','ü':'u','ş':'s','ı':'i','ö':'o','ç':'c'}[c]||c));
+  const p=D.contact.phone;
+  
+  if(D.chatbot&&D.chatbot.length){
+    for(let qa of D.chatbot){
+      const q=qa.q.toLowerCase().replace(/[ğüşıöç]/g,c=>({'ğ':'g','ü':'u','ş':'s','ı':'i','ö':'o','ç':'c'}[c]||c));
+      if(m.includes(q)){
+        return qa.a.replace(/TELEFON/g,`<b>${p}</b>`).replace(/INSTAGRAM/g,D.contact.ig);
+      }
+    }
+  }
+  
+  const kuf=['orospu','pic','sik','amk','lan','bok'];
+  if(kuf.some(k=>m.includes(k)))return `Yavaş lan 😂 Sakin ol, ne istiyorsun?`;
+  if(m.includes('instagram'))return `📷 Instagram: <a href="${D.contact.ig}" class="text-pink-500 font-bold underline">${D.contact.ig}</a>`;
+  if(m.includes('telefon')||m.includes('numara'))return `📞 ${p}`;
+  if(m.includes('adres'))return `📍 ${D.contact.address}`;
+  
+  return `Anlayamadım 😊 Başka nasıl yardımcı olabilirim? Telefon: <b>${p}</b>`;
+}
+
+loadData();
 </script>
-
 </body>
 </html>
